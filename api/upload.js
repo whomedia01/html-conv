@@ -6,16 +6,15 @@ export default async function handler(req, res) {
     res.setHeader('Allow', 'POST');
     return res.status(405).json({ error: 'POST 요청만 받습니다.' });
   }
+  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+    return res.status(500).json({ error: 'Blob 저장소가 연결되지 않았습니다. Vercel 프로젝트의 Storage에서 Blob(Public)을 연결한 뒤 다시 배포하세요.' });
+  }
   try {
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
     const json = await handleUpload({
       body,
       request: req,
-      onBeforeGenerateToken: async (pathname, clientPayload) => {
-        const required = process.env.PUBLISH_KEY || '';
-        let key = '';
-        try { key = JSON.parse(clientPayload || '{}').key || ''; } catch (e) { key = ''; }
-        if (required && key !== required) throw new Error('게시 비밀번호가 올바르지 않습니다.');
+      onBeforeGenerateToken: async (pathname) => {
         if (!/^books\/[a-z0-9-]{6,80}\.txt$/.test(pathname)) throw new Error('잘못된 저장 경로입니다.');
         return {
           allowedContentTypes: ['text/plain'],

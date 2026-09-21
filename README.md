@@ -57,10 +57,17 @@ FTP로 이 폴더 전체를 `www/convert/` 같은 하위 폴더에 올리면 `ht
 1. 이 폴더를 GitHub에 올리고 Vercel에서 **Import** (Framework Preset: **Other**, Build Command 비움)
 2. Vercel 프로젝트 → **Storage** → **Create Database** → **Blob** 선택 → 접근 방식 **Public** → 이 프로젝트에 **Connect**
    (환경변수 `BLOB_READ_WRITE_TOKEN`이 자동으로 들어갑니다)
-3. **Settings → Environment Variables**에 `PUBLISH_KEY` = 원하는 비밀번호 추가
-   (변환기 화면의 ‘게시 비밀번호’ 칸에 같은 값을 넣어야 링크가 만들어집니다. 외부인이 서버에 파일을 올리지 못하게 막는 장치입니다)
-4. **Redeploy** 후 변환기에서 `웹 링크` → `링크 만들기`로 확인
-5. 만든 링크의 파일은 Vercel 프로젝트 → Storage → Blob의 `books/` 폴더에서 확인·삭제할 수 있습니다
+3. **Redeploy** 후 변환기에서 `웹 링크` → `링크 만들기`로 확인
+4. 만든 링크의 파일은 Vercel 프로젝트 → Storage → Blob의 `books/` 폴더에서 확인·삭제할 수 있습니다
+
+### 점검 주소
+`https://도메인/api/health` 를 열면 `{"ok":true,"blob":true}` 가 나와야 정상입니다.
+`blob:false` 면 2번(Blob 저장소 연결)이 안 된 상태입니다.
+
+### 변환기 화면 접근 제한(선택)
+변환기 주소를 아는 사람은 누구나 링크를 만들 수 있습니다. 사내 전용으로 막으려면
+Vercel 프로젝트 → **Settings → Deployment Protection → Password Protection**(Pro 요금제) 또는
+**Vercel Authentication**을 켜세요. 만들어진 교안 링크(`/b/...`)는 그대로 외부에 공유됩니다.
 
 ## 사용 흐름
 1. PowerPoint에서 교안 작성 → **파일 › 내보내기 › PDF**
