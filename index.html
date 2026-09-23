@@ -220,7 +220,7 @@ details.more[open] summary{margin-bottom:12px}
         <h2 id="qh">변환 목록</h2>
         <ul class="queue" id="queue"></ul>
         <div class="qactions">
-          <button class="btn" id="zipAll" type="button" disabled>전체 ZIP 저장</button>
+          <button class="btn adm" id="zipAll" type="button" disabled>전체 ZIP 저장</button>
           <button class="btn" id="clearAll" type="button">목록 비우기</button>
         </div>
       </section>
@@ -261,13 +261,13 @@ details.more[open] summary{margin-bottom:12px}
             <h3>웹 저장</h3>
             <div class="field">
               <label for="ghPw">비밀번호</label>
-              <input type="password" id="ghPw" placeholder="회사 저장 비밀번호">
+              <input type="password" id="ghPw" placeholder="후미디어 저장 비밀번호">
             </div>
             <div class="field">
               <label class="chk"><input type="checkbox" id="ghRemember" checked><span><b>비밀번호 기억</b><span class="hint">이 브라우저에만 저장됩니다. 공용 PC 라면 꺼 두세요</span></span></label>
             </div>
             <div class="field">
-              <div class="row"><button class="btn" id="ghTest" type="button">연결 확인</button><span class="hint" id="ghStat">비밀번호를 넣고 연결을 확인하세요.</span></div>
+              <div class="row"><button class="btn" id="ghTest" type="button">연결 확인</button><span class="hint" id="ghStat">결과물은 후미디어 서버에만 저장됩니다. 비밀번호를 넣어 주세요.</span></div>
             </div>
             <div class="usage" id="ghUsage" hidden></div>
 
@@ -279,8 +279,8 @@ details.more[open] summary{margin-bottom:12px}
                 <span class="hint">github.com/settings/personal-access-tokens/new 에서 0818 저장소에 Contents: Read and write 로 한 번 발급합니다.</span>
               </div>
               <div class="field">
-                <label for="ghAdmPw">직원에게 알려 줄 비밀번호</label>
-                <input type="text" id="ghAdmPw" placeholder="예: whomedia2026">
+                <label for="ghAdmPw">직원에게 알려 줄 비밀번호 (고정)</label>
+                <input type="text" id="ghAdmPw" value="who123" readonly>
               </div>
               <div class="field">
                 <div class="row"><button class="btn primary" id="ghAdmSave" type="button">비밀번호 만들기</button><span class="hint" id="ghAdmStat"></span></div>
@@ -291,8 +291,8 @@ details.more[open] summary{margin-bottom:12px}
                 <span class="hint">이 코드를 다른 PC 의 같은 칸에 붙여넣고 «적용» 을 누르면, 그 PC 에서도 같은 비밀번호로 저장됩니다. 토큰은 코드 안에서 비밀번호로 잠겨 있습니다.</span>
               </div>
               <div class="pgrid">
-                <span class="pc"><label for="ghRepo">저장소</label><input type="text" id="ghRepo" value="whomedia01/0818"></span>
-                <span class="pc"><label for="ghBranch">브랜치</label><input type="text" id="ghBranch" value="main"></span>
+                <span class="pc"><label for="ghRepo">저장소 (고정)</label><input type="text" id="ghRepo" value="whomedia01/0818" readonly></span>
+                <span class="pc"><label for="ghBranch">브랜치 (고정)</label><input type="text" id="ghBranch" value="main" readonly></span>
                 <span class="pc"><label for="ghMaxFile">파일 한 개 (MB)</label><input type="text" id="ghMaxFile" value="25"></span>
                 <span class="pc"><label for="ghMaxTotal">전체 용량 (MB)</label><input type="text" id="ghMaxTotal" value="400"></span>
                 <span class="pc"><label for="ghMaxCount">교안 개수</label><input type="text" id="ghMaxCount" value="40"></span>
@@ -414,9 +414,9 @@ details.more[open] summary{margin-bottom:12px}
             <div class="stats" id="stats"></div>
           </div>
           <div class="ractions">
-            <div class="seg deliver" role="radiogroup" aria-label="전달 방식">
-              <input type="radio" name="deliver" id="dv1" value="file" checked><label for="dv1">HTML 파일</label>
-              <input type="radio" name="deliver" id="dv3" value="git"><label for="dv3">웹 저장</label>
+            <div class="seg deliver adm" role="radiogroup" aria-label="전달 방식">
+              <input type="radio" name="deliver" id="dv1" value="file"><label for="dv1">HTML 파일</label>
+              <input type="radio" name="deliver" id="dv3" value="git" checked><label for="dv3">웹 저장</label>
               <input type="radio" name="deliver" id="dv2" value="link"><label for="dv2">임시 링크</label>
             </div>
             <button class="btn" id="reconv" type="button" disabled title="현재 설정으로 다시 변환">다시 변환</button>
@@ -2392,7 +2392,14 @@ function deliverUI(){
     : ($('#pathOn').checked ? '납품 ZIP 저장' : (o.kind === 'plain' && o.unit === 'page' ? '페이지별 ZIP 저장' : 'HTML 저장'));
   $('#saveIco').setAttribute('d', link ? 'M6.5 9.5a3 3 0 0 0 4.2 0l2-2a3 3 0 0 0-4.2-4.2l-.8.8M9.5 6.5a3 3 0 0 0-4.2 0l-2 2a3 3 0 0 0 4.2 4.2l.8-.8' : 'M8 2v8m0 0 3-3m-3 3L5 7M3 12.5h10');
   $('#save').disabled = !sel || sel.status !== 'done' || (link && !LINK_OK);
-  if(git){ $('#pathFields').hidden = false; if(window.ghUI) ghUI(); }
+  if(git){
+    $('#pathFields').hidden = false;
+    if(window.ghUI) ghUI();
+    if(!window.PUBLISH_ENABLED){
+      const el = $('#ghStat');
+      if(el){ el.textContent = '이 미리보기 화면에서는 웹 저장을 쓸 수 없습니다. 후미디어 변환기 주소에서 사용해 주세요.'; el.className = 'hint bad'; }
+    }
+  }
   $('#linkOutRow').hidden = true;
   renderLinks();
 }
@@ -2517,13 +2524,17 @@ build(demo); items.push(demo); select(demo);
 const GKEYS = ['ghRepo', 'ghBranch', 'ghMaxFile', 'ghMaxTotal', 'ghMaxCount', 'ghKeepDays'];
 const MB = 1048576;
 const INDEX_FILE = '_ebook-index.json';
+/* 결과물은 후미디어 저장소에만 올라간다 — 화면에서 바꿀 수 없다 */
+const FIXED_REPO = 'whomedia01/0818';
+const FIXED_BRANCH = 'main';
+const APP_PW = 'who123';   /* 최종 산출 전 입력해야 하는 비밀번호 */
 
 let TOKEN = null;   /* 비밀번호로 풀어 낸 GitHub 토큰 (메모리에만) */
 function ghCfg(){
   const num = (id, d) => { const v = parseFloat($('#' + id).value); return isFinite(v) && v > 0 ? v : d; };
   return {
-    repo: $('#ghRepo').value.trim().replace(/^https?:\/\/github\.com\//i, '').replace(/\.git$/i, '').replace(/^\/+|\/+$/g, ''),
-    branch: $('#ghBranch').value.trim() || 'main',
+    repo: FIXED_REPO,
+    branch: FIXED_BRANCH,
     token: TOKEN || '',
     maxFile: num('ghMaxFile', 25) * MB,
     maxTotal: num('ghMaxTotal', 400) * MB,
@@ -2564,22 +2575,25 @@ function vaultFromCode(txt){
   return v;
 }
 /* 비밀번호로 잠금 풀기 (이미 풀려 있으면 그대로) */
+const WEB_SAVE_OK = !!window.PUBLISH_ENABLED;
 async function ghUnlock(){
   if(TOKEN) return true;
-  if(!CRYPTO_OK){ toast('이 화면에서는 비밀번호 잠금을 쓸 수 없습니다. https 주소로 열어 주세요.'); return false; }
+  if(!WEB_SAVE_OK){ ghState('이 미리보기 화면에서는 웹 저장을 쓸 수 없습니다. 후미디어 변환기 주소(html-conv.vercel.app)에서 사용해 주세요.', 'bad', true); return false; }
+  if(!CRYPTO_OK){ ghState('https 주소로 열어야 비밀번호 잠금을 쓸 수 있습니다.', 'bad', true); return false; }
   const v = vaultGet();
   if(!v){
-    if(ADMIN){ ghState('먼저 «관리자 설정» 을 열어 비밀번호를 만들어 주세요.', 'bad'); $('#ghAdmin').open = true; }
-    else ghState('이 PC 는 아직 설정되지 않았습니다. 관리자에게 설정을 요청해 주세요.', 'bad');
+    if(ADMIN){ ghState('먼저 «관리자 설정» 을 열어 비밀번호를 만들어 주세요.', 'bad', true); $('#ghAdmin').open = true; }
+    else ghState('이 PC 는 아직 설정되지 않았습니다. 관리자에게 설정을 요청해 주세요.', 'bad', true);
     return false;
   }
-  const pw = $('#ghPw').value;
-  if(!pw){ ghState('비밀번호를 넣어 주세요.', 'bad'); return false; }
+  const pw = $('#ghPw').value.trim();
+  if(!pw){ ghState('비밀번호를 넣어 주세요.', 'bad', true); return false; }
+  if(pw !== APP_PW){ ghState('비밀번호가 맞지 않습니다.', 'bad', true); return false; }
   try{
     TOKEN = await vaultOpen(v, pw);
     if($('#ghRemember').checked) store('gh:pw', pw);
     return true;
-  }catch(e){ ghState('비밀번호가 맞지 않습니다.', 'bad'); return false; }
+  }catch(e){ ghState('비밀번호가 맞지 않습니다.', 'bad', true); return false; }
 }
 
 /* 용량·개수를 세는 범위: 저장 경로의 첫 단계까지 (예: public/webcontents) */
@@ -2676,10 +2690,11 @@ async function ghSaveIndex(c, idx, entry, removePath){
 }
 
 /* ---------- 화면 ---------- */
-function ghState(msg, kind){
+function ghState(msg, kind, loud){
   const el = $('#ghStat');
   el.textContent = msg;
   el.className = 'hint' + (kind ? ' ' + kind : '');
+  if(loud && kind === 'bad') toast(msg);
 }
 function ghBar(used, limit){
   const pct = Math.min(100, Math.round(used / limit * 100));
@@ -2695,13 +2710,12 @@ let ghScanCache = null;
 async function ghRefresh(quiet){
   if(!await ghUnlock()){ $('#ghUsage').hidden = true; return null; }
   const c = ghCfg(), P = pathOpts();
-  if(!c.repo){ $('#ghUsage').hidden = true; if(!quiet) ghState('관리자 설정에서 저장소를 적어 주세요.', 'bad'); return null; }
   try{
     if(!quiet) ghState('저장소를 확인하는 중…');
     const s = await ghScan(c, P);
     ghScanCache = s;
     renderUsage(s, c);
-    if(!quiet) ghState('연결됨 · ' + c.repo + ' (' + c.branch + ')', 'ok');
+    if(!quiet) ghState('연결됨 · 후미디어 서버', 'ok');
     return s;
   }catch(e){
     $('#ghUsage').hidden = true;
@@ -2739,7 +2753,6 @@ function ghProg(txt, pct){
 async function ghSave(it){
   let c = ghCfg();
   const P = pathOpts();
-  if(!c.repo || !/^[\w.-]+\/[\w.-]+$/.test(c.repo)){ toast('저장소를 소유자/이름 형태로 적어 주세요. 예: whomedia01/0818'); return; }
   if(!await ghUnlock()) return;
   c.token = TOKEN;
   if(!P.path){ toast('주소 경로를 적어 주세요.'); return; }
@@ -2828,7 +2841,12 @@ async function ghDelete(path, sha){
 /* ---------- 초기화 ---------- */
 /* 관리자 화면은 주소 끝에 ?admin=1 을 붙였을 때만 보인다 */
 const ADMIN = /(?:[?&]admin=1|#admin)/.test(location.search + location.hash);
-function admHide(){ if(!ADMIN) document.querySelectorAll('.adm').forEach(el => { el.hidden = true; }); }
+function admHide(){
+  if(ADMIN) return;
+  document.querySelectorAll('.adm').forEach(el => { el.hidden = true; });
+  const g = $('#dv3');            /* 직원 화면은 «웹 저장» 으로 고정 */
+  if(g && !g.checked){ g.checked = true; g.dispatchEvent(new Event('change', {bubbles:true})); }
+}
 function ghInit(){
   admHide();
   GKEYS.forEach(k => { const v = store('gh:' + k); if(typeof v === 'string' && v !== '') $('#' + k).value = v; });
@@ -2860,10 +2878,10 @@ function ghInit(){
   else if(ADMIN){ $('#ghAdmin').open = true; admStat('토큰과 비밀번호를 넣고 «비밀번호 만들기» 를 누르세요.'); }
 
   $('#ghAdmSave').addEventListener('click', async () => {
-    const tok = $('#ghAdmTok').value.trim(), pw = $('#ghAdmPw').value.trim();
+    const tok = $('#ghAdmTok').value.trim(), pw = APP_PW;
+    $('#ghAdmPw').value = APP_PW;
     if(!CRYPTO_OK){ admStat('https 주소로 열어야 비밀번호를 만들 수 있습니다.', 'bad'); return; }
     if(!tok){ admStat('GitHub 토큰을 넣어 주세요.', 'bad'); return; }
-    if(pw.length < 4){ admStat('비밀번호는 4자 이상으로 정해 주세요.', 'bad'); return; }
     try{
       const v = await vaultMake(tok, pw);
       vaultSet(v);
