@@ -4,6 +4,8 @@ export default function handler(req, res) {
   res.status(200).json({
     ok: true,
     blob: !!process.env.BLOB_READ_WRITE_TOKEN,
+    save: !!process.env.GITHUB_TOKEN,
+    repo: process.env.GITHUB_REPO || 'whomedia01/0818',
     time: new Date().toISOString(),
   });
 }

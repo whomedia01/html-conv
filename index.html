@@ -2529,12 +2529,13 @@ const FIXED_REPO = 'whomedia01/0818';
 const FIXED_BRANCH = 'main';
 const APP_PW = 'who123';   /* 최종 산출 전 입력해야 하는 비밀번호 */
 
-let TOKEN = null;   /* 비밀번호로 풀어 낸 GitHub 토큰 (메모리에만) */
+let TOKEN = null;   /* 서버에서 받아 온 GitHub 토큰 (메모리에만, 저장하지 않음) */
+let SRV = null;     /* 서버가 알려 준 저장 대상 */
 function ghCfg(){
   const num = (id, d) => { const v = parseFloat($('#' + id).value); return isFinite(v) && v > 0 ? v : d; };
   return {
-    repo: FIXED_REPO,
-    branch: FIXED_BRANCH,
+    repo: (SRV && SRV.repo) || FIXED_REPO,
+    branch: (SRV && SRV.branch) || FIXED_BRANCH,
     token: TOKEN || '',
     maxFile: num('ghMaxFile', 25) * MB,
     maxTotal: num('ghMaxTotal', 400) * MB,
@@ -2578,17 +2579,39 @@ function vaultFromCode(txt){
 const WEB_SAVE_OK = !!window.PUBLISH_ENABLED;
 async function ghUnlock(){
   if(TOKEN) return true;
-  if(!WEB_SAVE_OK){ ghState('이 미리보기 화면에서는 웹 저장을 쓸 수 없습니다. 후미디어 변환기 주소(html-conv.vercel.app)에서 사용해 주세요.', 'bad', true); return false; }
-  if(!CRYPTO_OK){ ghState('https 주소로 열어야 비밀번호 잠금을 쓸 수 있습니다.', 'bad', true); return false; }
-  const v = vaultGet();
-  if(!v){
-    if(ADMIN){ ghState('먼저 «관리자 설정» 을 열어 비밀번호를 만들어 주세요.', 'bad', true); $('#ghAdmin').open = true; }
-    else ghState('이 PC 는 아직 설정되지 않았습니다. 관리자에게 설정을 요청해 주세요.', 'bad', true);
-    return false;
-  }
   const pw = $('#ghPw').value.trim();
   if(!pw){ ghState('비밀번호를 넣어 주세요.', 'bad', true); return false; }
-  if(pw !== APP_PW){ ghState('비밀번호가 맞지 않습니다.', 'bad', true); return false; }
+
+  /* 1) 서버에 물어본다 — 배포판의 기본 경로. PC 마다 따로 설정할 필요가 없다 */
+  let srvTried = false;
+  try{
+    const r = await fetch('/api/token', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({pw})
+    });
+    const ct = r.headers.get('content-type') || '';
+    if(ct.indexOf('application/json') >= 0){
+      srvTried = true;
+      const j = await r.json().catch(() => ({}));
+      if(r.ok && j.token){
+        TOKEN = j.token;
+        SRV = {repo: j.repo, branch: j.branch};
+        if($('#ghRemember').checked) store('gh:pw', pw);
+        return true;
+      }
+      ghState(j.error || '비밀번호가 맞지 않습니다.', 'bad', true);
+      return false;
+    }
+  }catch(e){ /* 서버가 없는 화면 — 아래 예비 경로로 */ }
+
+  /* 2) 예비 경로 — 이 브라우저에 직접 등록해 둔 잠금 (구버전·오프라인용) */
+  if(!CRYPTO_OK){ ghState('https 주소로 열어 주세요.', 'bad', true); return false; }
+  const v = vaultGet();
+  if(!v){
+    ghState(srvTried ? '서버에 저장 권한이 설정되지 않았습니다.'
+      : '이 화면에서는 웹 저장을 쓸 수 없습니다. html-conv.vercel.app 에서 사용해 주세요.', 'bad', true);
+    return false;
+  }
   try{
     TOKEN = await vaultOpen(v, pw);
     if($('#ghRemember').checked) store('gh:pw', pw);

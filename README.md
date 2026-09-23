@@ -87,52 +87,56 @@ Vercel 프로젝트 → **Settings → Deployment Protection → Password Protec
 
 ---
 
-## 웹 저장 — 변환하고 바로 주소 만들기
+## 웹 저장 — 주소 열고 비밀번호만
 
-결과 화면에서 **전달 방식 → 웹 저장**을 고르면, 변환한 교안이 회사 저장소로 바로 올라가고
-전달할 주소가 만들어집니다. 파일을 내려받아 다시 올리는 과정이 없습니다.
+직원이 하는 일은 두 가지뿐입니다.
 
-직원이 쓰는 화면에는 **비밀번호 한 칸**만 있습니다. GitHub 토큰은 관리자가 처음 한 번만 넣고,
-그 뒤로는 비밀번호 안에 잠겨 있어 아무에게도 보이지 않습니다.
+```
+1. https://html-conv.vercel.app  접속
+2. 교안 파일 끌어다 놓기 → 비밀번호 who123 → [웹에 저장하고 링크 만들기]
+```
 
-### 1) 관리자가 처음 한 번만
+PC 마다 설정할 것이 없습니다. 토큰은 Vercel 서버에만 있고 브라우저로 저장되지 않습니다.
+
+### 대표님이 한 번만 (10분)
 
 **(1) GitHub 토큰 발급** — github.com/settings/personal-access-tokens/new
 
-| 항목 | 이렇게 |
+| 항목 | 값 |
 |---|---|
 | Token name | 교안저장 |
-| Expiration | 1 year |
-| Repository access | Only select repositories → 교안을 올릴 저장소 하나만 |
+| Expiration | No expiration (기한을 걸면 그날 저장이 멈춥니다) |
+| Repository access | **Only select repositories** → `0818` |
 | Permissions → Repository permissions | **Contents: Read and write** |
 
-**(2) 변환기에 잠가 두기**
+**(2) Vercel 환경변수 2줄** — `html-conv` 프로젝트 → Settings → Environment Variables
 
-주소 끝에 **`?admin=1`** 을 붙여 엽니다 (예: `https://html-conv.vercel.app/?admin=1`).
-이때만 «관리자 설정» 과 «고급 설정» 이 보입니다. 직원이 그냥 연 화면에는 아무 설정도 나오지 않습니다.
+| 이름 | 값 |
+|---|---|
+| `GITHUB_TOKEN` | 위에서 복사한 `github_pat_...` |
+| `APP_PASSWORD` | `who123` |
 
-웹 저장 › **관리자 설정** 을 펼치고
+저장 대상을 바꾸려면 `GITHUB_REPO`(기본 `whomedia01/0818`), `GITHUB_BRANCH`(기본 `main`)도 넣을 수 있습니다.
 
-1. GitHub 토큰 칸에 방금 발급한 값을 붙여넣기
-2. 비밀번호는 **who123** 으로 고정되어 있습니다 (칸이 잠겨 있음)
-3. **비밀번호 만들기**
+**(3) Deployments → 맨 위 배포 → Redeploy**
 
-토큰은 이 비밀번호로 암호화되어 브라우저에 보관되고, 입력칸에서는 지워집니다.
-이제 직원에게는 비밀번호 **who123** 만 알려 주면 됩니다. 토큰을 다시 볼 일도, 나눠 줄 일도 없습니다.
+끝입니다. 이후 어느 PC에서 열어도 비밀번호만 치면 저장됩니다.
 
-**(3) 다른 PC 에서도 쓰려면**
+### 확인
 
-관리자 설정 아래 **설정 코드**(`KYOAN1-...`)를 복사해 다른 PC 의 같은 칸에 붙여넣고 «적용» 을 누릅니다.
-코드 안의 토큰은 비밀번호로 잠겨 있어, 코드만으로는 열 수 없습니다.
+`https://html-conv.vercel.app/api/health` 를 열어
 
-### 2) 직원이 쓰는 법
+```json
+{"ok":true,"save":true,"repo":"whomedia01/0818"}
+```
 
-1. 교안 파일을 끌어다 놓기
-2. 전달 방식 → **웹 저장**
-3. 비밀번호 **who123** 입력 → **연결 확인** (초록색 «연결됨 · 후미디어 서버» 가 뜨면 준비 끝)
-4. **웹에 저장하고 링크 만들기** → 확인창에서 확인 → 주소 복사
+`save`가 `true`면 준비된 것입니다. `false`면 `GITHUB_TOKEN` 이 아직 안 들어갔거나 재배포를 안 한 상태입니다.
 
-«비밀번호 기억» 을 켜 두면 다음부터는 바로 저장할 수 있습니다. 공용 PC 라면 꺼 두세요.
+### 비밀번호 보호
+
+- 10분 안에 10번 틀리면 그 접속지에서 잠시 차단됩니다.
+- 틀린 비밀번호에는 0.4초 지연이 걸려 무작위 대입이 느려집니다.
+- 비밀번호는 서버에만 있고 화면 코드에는 없습니다. 바꾸려면 `APP_PASSWORD` 값만 고치고 재배포하면 됩니다.
 
 ### 3) 안전장치
 
