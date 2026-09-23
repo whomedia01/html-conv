@@ -160,6 +160,29 @@ details.more[open] summary{margin-bottom:12px}
 .lb-list li{display:flex;gap:8px;align-items:center;font-size:13px;min-width:0}
 .lb-list li span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .lb-list li a{color:var(--accent);font-family:var(--mono);font-size:12px;white-space:nowrap}
+.pad > .group:first-child{border-top:0;margin-top:0;padding-top:0}
+.pgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.pgrid .pc{display:grid;gap:4px;min-width:0}
+.pgrid .pc label{font-size:12px;color:var(--muted);font-weight:600}
+.pgrid input[type=text]{height:32px;font-family:var(--mono);font-size:12px}
+.purl{margin-top:10px;padding:10px;border-radius:6px;background:var(--sunk);border:1px solid var(--line);font-family:var(--mono);font-size:12px;line-height:1.6;word-break:break-all}
+.purl b{color:var(--accent);font-weight:700}
+.hint.ok{color:#127a4b;font-weight:600}
+.hint.bad{color:#b4232a;font-weight:600}
+.ubar{display:inline-block;vertical-align:middle;width:120px;height:6px;margin-left:8px;border-radius:3px;background:var(--line);overflow:hidden}
+.ubar i{display:block;height:100%;background:var(--accent)}
+.ubar i.warn{background:#c98a12}.ubar i.bad{background:#b4232a}
+.urow{display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:6px}
+.urow b{font-weight:600;min-width:38px}
+.glist{margin-top:8px}
+.glist summary{cursor:pointer;font-size:13px;color:var(--accent);font-weight:600}
+.glist ul{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:5px;max-height:220px;overflow:auto}
+.glist li{display:flex;gap:8px;align-items:center;font-size:12px;min-width:0}
+.glist li.old{color:#b4232a}
+.glist .gp{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--mono)}
+.glist .gs{color:var(--muted);white-space:nowrap}
+.btn.mini{padding:2px 7px;font-size:11px;height:auto}
+.mono{font-family:var(--mono);font-size:12px;word-break:break-all}
 .foot{margin-top:24px;color:var(--muted);font-size:12px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
@@ -171,7 +194,7 @@ details.more[open] summary{margin-bottom:12px}
   <header class="mast">
     <div>
       <h1>교안 <em>HTML</em> 변환기</h1>
-      <p>PPT·PDF 교안을 <b>책장이 넘어가는 전자책(플립북) HTML</b>로 바꿉니다. 버튼 없는 순수 HTML로도 저장할 수 있습니다. 변환은 브라우저 안에서 이뤄지고, <b>웹 링크</b>를 만들 때만 결과물이 서버에 올라갑니다.</p>
+      <p>PPT·PDF 교안을 <b>책장이 넘어가는 전자책(플립북) HTML</b>로 바꿉니다. 변환은 브라우저 안에서 이뤄집니다. 파일로 내려받거나, <b>웹 저장</b>으로 회사 저장소에 올려 바로 전달할 주소를 만들 수 있습니다.</p>
     </div>
     <div class="flow" aria-label="권장 작업 흐름">
       <span><b>1</b> PPT 작업</span><i>→</i>
@@ -205,6 +228,81 @@ details.more[open] summary{margin-bottom:12px}
       <section class="panel" aria-labelledby="sh">
         <h2 id="sh">변환 설정</h2>
         <div class="pad">
+
+          <div class="group">
+            <h3>저장 위치</h3>
+            <div class="field" id="pathOnRow">
+              <label class="chk"><input type="checkbox" id="pathOn"><span><b>납품 폴더 구조로 저장</b><span class="hint">서버에 그대로 올리면 곧 주소가 되는 폴더 구조(ZIP)로 저장합니다</span></span></label>
+            </div>
+            <div id="pathFields" hidden>
+              <div class="field">
+                <label for="pBase">사이트 주소</label>
+                <input type="text" id="pBase" value="https://www.whomedia.co.kr" placeholder="https://www.whomedia.co.kr">
+              </div>
+              <div class="field">
+                <label for="pPath">주소 경로</label>
+                <input type="text" id="pPath" value="webcontents/ebook/2026/01">
+                <span class="hint">주소에 들어갈 폴더 순서. 차시 폴더를 비우면 파일명의 숫자가 자동으로 올라갑니다 (01.html → 02.html).</span>
+              </div>
+              <div class="pgrid">
+                <span class="pc"><label for="pUnit">차시 폴더</label><input type="text" id="pUnit" value="" placeholder="없으면 비움"></span>
+                <span class="pc"><label for="pFile">진입 파일명</label><input type="text" id="pFile" value="01.html"></span>
+              </div>
+              <div class="field">
+                <label for="pWrap">저장소 안 상위 폴더</label>
+                <input type="text" id="pWrap" value="public" placeholder="비워 두면 최상위">
+                <span class="hint"><b>주소에는 나오지 않습니다.</b> Vite·Next 같은 빌드형 사이트는 <code>public</code> 안에 넣어야 실제로 서비스됩니다. 일반 웹호스팅(FTP)이면 비워 두세요.</span>
+              </div>
+              <div class="purl" id="pUrl"></div>
+            </div>
+          </div>
+
+          <div class="group" id="ghGroup" hidden>
+            <h3>웹 저장</h3>
+            <div class="field">
+              <label for="ghPw">비밀번호</label>
+              <input type="password" id="ghPw" placeholder="회사 저장 비밀번호">
+            </div>
+            <div class="field">
+              <label class="chk"><input type="checkbox" id="ghRemember" checked><span><b>비밀번호 기억</b><span class="hint">이 브라우저에만 저장됩니다. 공용 PC 라면 꺼 두세요</span></span></label>
+            </div>
+            <div class="field">
+              <div class="row"><button class="btn" id="ghTest" type="button">연결 확인</button><span class="hint" id="ghStat">비밀번호를 넣고 연결을 확인하세요.</span></div>
+            </div>
+            <div class="usage" id="ghUsage" hidden></div>
+
+            <details class="more" id="ghAdmin">
+              <summary>관리자 설정 — 처음 한 번만</summary>
+              <div class="field">
+                <label for="ghAdmTok">GitHub 토큰</label>
+                <input type="password" id="ghAdmTok" placeholder="github_pat_...">
+                <span class="hint">github.com/settings/personal-access-tokens/new 에서 0818 저장소에 Contents: Read and write 로 한 번 발급합니다.</span>
+              </div>
+              <div class="field">
+                <label for="ghAdmPw">직원에게 알려 줄 비밀번호</label>
+                <input type="text" id="ghAdmPw" placeholder="예: whomedia2026">
+              </div>
+              <div class="field">
+                <div class="row"><button class="btn primary" id="ghAdmSave" type="button">비밀번호 만들기</button><span class="hint" id="ghAdmStat"></span></div>
+              </div>
+              <div class="field">
+                <label for="ghCode">다른 PC 설정 코드</label>
+                <div class="lb-copy"><input type="text" id="ghCode" placeholder="비밀번호를 만들면 여기에 나옵니다"><button class="btn" type="button" id="ghCodeCopy">복사</button><button class="btn" type="button" id="ghCodeApply">적용</button></div>
+                <span class="hint">이 코드를 다른 PC 의 같은 칸에 붙여넣고 «적용» 을 누르면, 그 PC 에서도 같은 비밀번호로 저장됩니다. 토큰은 코드 안에서 비밀번호로 잠겨 있습니다.</span>
+              </div>
+              <div class="pgrid">
+                <span class="pc"><label for="ghRepo">저장소</label><input type="text" id="ghRepo" value="whomedia01/0818"></span>
+                <span class="pc"><label for="ghBranch">브랜치</label><input type="text" id="ghBranch" value="main"></span>
+                <span class="pc"><label for="ghMaxFile">파일 한 개 (MB)</label><input type="text" id="ghMaxFile" value="30"></span>
+                <span class="pc"><label for="ghMaxTotal">전체 용량 (MB)</label><input type="text" id="ghMaxTotal" value="500"></span>
+                <span class="pc"><label for="ghMaxCount">교안 개수</label><input type="text" id="ghMaxCount" value="30"></span>
+                <span class="pc"><label for="ghKeepDays">오래됨 표시 (일)</label><input type="text" id="ghKeepDays" value="180"></span>
+              </div>
+            </details>
+          </div>
+
+          <details class="more" id="adv">
+            <summary>고급 설정 — 평소에는 건드리지 않아도 됩니다</summary>
           <div class="field">
             <span class="lbl">결과물 형태</span>
             <div class="seg" role="radiogroup" aria-label="결과물 형태">
@@ -225,11 +323,11 @@ details.more[open] summary{margin-bottom:12px}
             <span class="lbl">화질 (PDF)</span>
             <div class="seg" role="radiogroup" aria-label="화질">
               <input type="radio" name="res" id="res1" value="1280"><label for="res1">가볍게</label>
-              <input type="radio" name="res" id="res2" value="1920" checked><label for="res2">표준</label>
+              <input type="radio" name="res" id="res2" value="1920"><label for="res2">표준</label>
               <input type="radio" name="res" id="res3" value="2560"><label for="res3">고화질</label>
-              <input type="radio" name="res" id="res4" value="3200"><label for="res4">인쇄용</label>
+              <input type="radio" name="res" id="res4" value="3200" checked><label for="res4">인쇄용</label>
             </div>
-            <span class="hint" id="resHint">긴 변 1920px · 강의 화면 풀HD 기준</span>
+            <span class="hint" id="resHint">긴 변 3200px · 확대해도 글자가 깨지지 않는 최고 화질</span>
           </div>
           <div class="field">
             <label class="chk"><input type="checkbox" id="optText" checked><span><b>텍스트 검색·복사 레이어</b><span class="hint">PDF 글자를 투명 레이어로 넣어 Ctrl+F 검색·복사가 됩니다</span></span></label>
@@ -281,9 +379,8 @@ details.more[open] summary{margin-bottom:12px}
               <label class="chk"><input type="checkbox" id="optProtect"><span><b>간이 복사 방지</b><span class="hint">글자 선택·그림 끌기를 막습니다. 완전한 보안은 아닙니다</span></span></label>
             </div>
           </div>
-
-          <details class="more">
-            <summary>세부 설정</summary>
+            <div class="group">
+              <h3>세부 설정</h3>
             <div class="field">
               <label for="fmt">페이지 이미지 형식 (PDF)</label>
               <select id="fmt">
@@ -301,6 +398,7 @@ details.more[open] summary{margin-bottom:12px}
             </div>
             <div class="field">
               <label class="chk"><input type="checkbox" id="optOpt" checked><span><b>큰 이미지 자동 최적화 (PPTX)</b><span class="hint">350KB 넘는 사진을 긴 변 2400px로 줄입니다</span></span></label>
+              </div>
             </div>
           </details>
         </div>
@@ -318,13 +416,26 @@ details.more[open] summary{margin-bottom:12px}
           <div class="ractions">
             <div class="seg deliver" role="radiogroup" aria-label="전달 방식">
               <input type="radio" name="deliver" id="dv1" value="file" checked><label for="dv1">HTML 파일</label>
-              <input type="radio" name="deliver" id="dv2" value="link"><label for="dv2">웹 링크</label>
+              <input type="radio" name="deliver" id="dv3" value="git"><label for="dv3">웹 저장</label>
+              <input type="radio" name="deliver" id="dv2" value="link"><label for="dv2">임시 링크</label>
             </div>
             <button class="btn" id="reconv" type="button" disabled title="현재 설정으로 다시 변환">다시 변환</button>
             <button class="btn primary" id="save" type="button" disabled>
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path id="saveIco" d="M8 2v8m0 0 3-3m-3 3L5 7M3 12.5h10"/></svg>
               <span id="saveLbl">HTML 저장</span>
             </button>
+          </div>
+        </div>
+        <div class="linkbox" id="ghBox" hidden>
+          <div class="lb-row">
+            <span class="hint">저장 경로 <b id="ghPath" class="mono"></b></span>
+            <span class="hint">만들어질 주소 <b id="ghLinkPreview" class="mono"></b></span>
+          </div>
+          <div class="lb-prog" id="ghProg" hidden><span id="ghProgT">올리는 중…</span><span class="bar"><i id="ghBar2"></i></span></div>
+          <div class="lb-row lb-out" id="ghOutRow" hidden>
+            <label for="ghOut">전달할 주소</label>
+            <div class="lb-copy"><input type="text" id="ghOut" readonly><button class="btn" type="button" id="ghCopy">복사</button><a class="btn" id="ghOpen" target="_blank" rel="noopener">열기</a></div>
+            <span class="hint">GitHub 에 올린 직후에는 배포가 끝나기까지 1~2분 걸립니다. 그 사이에는 주소가 404 로 보일 수 있습니다.</span>
           </div>
         </div>
         <div class="linkbox" id="linkBox" hidden>
@@ -354,7 +465,7 @@ details.more[open] summary{margin-bottom:12px}
         <div class="check">
           <div><span class="k">PPT → PDF</span><b>원본과 100% 동일하게 하려면</b><span>PowerPoint의 파일 › 내보내기 › PDF로 먼저 저장한 뒤 올리세요. 글꼴·도형·차트가 그대로 보존됩니다.</span></div>
           <div><span class="k">PPTX 직접</span><b>글자를 살린 편집형 변환</b><span>텍스트·이미지·표·기본 도형·차트를 HTML로 재구성합니다. 특수 효과·일부 도형은 단순화됩니다.</span></div>
-          <div><span class="k">용량</span><b>LMS 업로드 제한 확인</b><span>10MB 이하는 대부분 문제없습니다. 크면 화질을 ‘가볍게’로 낮추거나 차시별로 나누세요.</span></div>
+          <div><span class="k">용량</span><b>LMS 업로드 제한 확인</b><span>웹 저장으로 링크를 만들면 용량 제한을 신경 쓰지 않아도 됩니다. 파일로 보내야 한다면 고급 설정에서 화질을 낮추세요.</span></div>
           <div><span class="k">검수</span><b>오프라인에서 한 번 열어보기</b><span>저장한 파일을 인터넷을 끈 PC에서 더블클릭해 이미지·목차·넘김이 정상인지 확인하세요.</span></div>
         </div>
       </section>
@@ -1971,9 +2082,10 @@ function buildPlain(deck, o, pages, linkTo){
     + (o.footer ? `<footer>${esc(o.footer)}</footer>\n` : '') + '</body>\n</html>\n';
 }
 const pad3 = (n, total) => String(n).padStart(Math.max(2, String(total).length), '0');
-function pageFiles(it, o){
-  const N = it.deck.pages.length, base = fileName(it.title);
-  const name = i => `${base}_${pad3(i+1, N)}.html`;
+function pageFiles(it, o, ent){
+  const N = it.deck.pages.length, base = fileName(it);
+  const stem = ent ? ent.replace(/\.[^.]*$/, '') : '';
+  const name = i => ent ? (i === 0 ? ent : `${stem}-${pad3(i+1, N)}.html`) : `${base}-${pad3(i+1, N)}.html`;
   return it.deck.pages.map((_, i) => ({name: name(i), html: buildPlain(it.deck, o, [i], j => name(j))}));
 }
 
@@ -2152,8 +2264,99 @@ function renderQueue(){
   }).join('');
   $('#zipAll').disabled = !items.some(x => x.status === 'done' && !x.demo);
 }
-const BAD_CH = new RegExp('[\\\\/:*?"<>|\\x00-\\x1f]', 'g');
-const fileName = t => (t || '교안').replace(BAD_CH, ' ').replace(/\s+/g, ' ').trim().slice(0, 120) || '교안';
+/* file names: ASCII only, generated (never the Korean title) */
+const RCH = 'abcdefghijklmnopqrstuvwxyz0123456789';
+const rnd = n => { let s = ''; for(let i = 0; i < n; i++) s += RCH[Math.floor(Math.random() * RCH.length)]; return s; };
+const stamp = () => { const d = new Date(), p = n => String(n).padStart(2, '0'); return `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}`; };
+const newCode = () => `lesson-${stamp()}-${rnd(5)}`;
+const fileName = it => (it && typeof it === 'object') ? (it.code || (it.code = newCode())) : newCode();
+
+/* ---------- 서버 납품 경로 (폴더 = 주소) ---------- */
+const PKEYS = ['pBase','pPath','pUnit','pFile','pWrap'];
+const trimSeg = v => String(v == null ? '' : v).trim().replace(/^[\s\/]+|[\s\/]+$/g, '');
+const asciiSafe = v => trimSeg(v).toLowerCase().replace(/[^a-z0-9._-]+/g, '-').replace(/^-+|-+$/g, '');
+function pathOpts(){
+  const clean = v => trimSeg(v).replace(/\/{2,}/g, '/');
+  return {
+    on: $('#pathOn').checked,
+    base: trimSeg($('#pBase').value).replace(/\/+$/, ''),
+    path: clean($('#pPath').value), wrap: clean($('#pWrap').value),
+    unit: trimSeg($('#pUnit').value), file: trimSeg($('#pFile').value) || 'index.html'
+  };
+}
+/* 차시 번호를 자리수 유지하며 증가: 01 -> 02, s1 -> s2 */
+function bumpNo(v, n){
+  if(!n) return v;
+  const m = /^(.*?)(\d+)$/.exec(v || '');
+  if(!m) return v ? v + '-' + (n + 1) : v;
+  return m[1] + String(+m[2] + n).padStart(m[2].length, '0');
+}
+function bumpFile(f, n){
+  if(!n) return f;
+  const m = /^(.*?)(\d+)(\.[^.]*)$/.exec(f || '');
+  if(!m) return (f || 'index.html').replace(/(\.[^.]*)$/, '-' + (n + 1) + '$1');
+  return m[1] + String(+m[2] + n).padStart(m[2].length, '0') + m[3];
+}
+/* 차시 폴더가 있으면 폴더 번호가, 없으면 파일 번호가 올라간다 */
+const deployFile = (P, n) => P.unit ? P.file : bumpFile(P.file, n);
+const deployDir = (P, n) => [P.path, bumpNo(P.unit, n)].filter(Boolean).join('/');
+const zipDir = (P, n) => [P.wrap, deployDir(P, n)].filter(Boolean).join('/');
+function deployURL(P, n){
+  const d = deployDir(P, n), tail = (d ? d + '/' : '') + deployFile(P, n);
+  return (P.base || '') + '/' + tail;
+}
+const deployPath = (P, n) => [zipDir(P, n), deployFile(P, n)].filter(Boolean).join('/');
+/* cleanUrls 가 켜진 사이트에서 실제로 보이는 짧은 주소 */
+function shortURL(P, n){
+  const u = deployURL(P, n);
+  return /^index\.html?$/i.test(deployFile(P, n)) ? u.replace(/index\.html?$/i, '') : u.replace(/\.html?$/i, '');
+}
+const deployZipName = P => 'deploy-' + (asciiSafe(P.path.replace(/\//g, '-')) || stamp()) + '-' + rnd(4) + '.zip';
+function deployGuide(list, P){
+  const L = ['[ 업로드 안내 ]', '',
+    '1. 이 ZIP 을 풀면 아래 폴더 구조가 그대로 나옵니다.',
+    P.wrap ? ('2. 저장소(또는 사이트 폴더)의 "' + P.wrap + '" 폴더 위치에 맞춰 통째로 넣고 배포합니다.')
+           : '2. FTP 프로그램(파일질라 등)으로 웹서버 최상위(public_html / www)에 폴더째 올립니다.',
+    '3. 올린 뒤 아래 주소로 열립니다. 별도 설정·DB·프로그램이 필요 없습니다.', '', '--- 생성되는 주소 ---'];
+  list.forEach((it, n) => L.push((n + 1) + '. ' + (it.title || '') + '\n   ' + deployURL(P, n)));
+  L.push('', '--- ZIP 안 폴더 구조 ---');
+  list.forEach((it, n) => L.push(deployPath(P, n)));
+  if(P.wrap) L.push('', '* "' + P.wrap + '" 폴더는 주소에 나오지 않습니다. 빌드형 사이트(Vite·Next 등)에서 정적 파일이 실제로 서비스되게 하는 위치입니다.');
+  L.push('', '만든 날짜: ' + new Date().toLocaleString('ko-KR'), '교안 HTML 변환기');
+  return '\ufeff' + L.join('\n');
+}
+function pathUI(){
+  const on = $('#pathOn').checked, P = pathOpts();
+  $('#pathFields').hidden = !on;
+  const u1 = deployURL(P, 0), u2 = deployURL(P, 1), clean = shortURL(P, 0);
+  $('#pUrl').innerHTML = '<b>' + esc(u1) + '</b>'
+    + '<br><span class="hint">두 번째 교안부터: ' + esc(u2) + '</span>'
+    + (clean !== u1 ? '<br><span class="hint">짧은 주소로도 열립니다: ' + esc(clean) + '</span>' : '')
+    + '<br><span class="hint">저장소 경로: ' + esc(deployPath(P, 0)) + '</span>';
+  PKEYS.forEach(k => store('path:' + k, $('#' + k).value));
+  store('path:on', on);
+  deliverUI();
+}
+function pathInit(){
+  const on = store('path:on');
+  if(on != null) $('#pathOn').checked = !!on;
+  PKEYS.forEach(k => { const v = store('path:' + k); if(typeof v === 'string' && v !== '') $('#' + k).value = v; });
+  $('#pathOn').addEventListener('change', pathUI);
+  PKEYS.forEach(k => $('#' + k).addEventListener('input', pathUI));
+  pathUI();
+}
+async function saveDeploy(list, o, P){
+  if(!window.JSZip){ toast('ZIP 엔진을 불러오지 못했습니다.'); return; }
+  const z = new JSZip();
+  list.forEach((it, n) => {
+    const d = zipDir(P, n), f = d ? z.folder(d) : z, ent = deployFile(P, n);
+    if(o.kind === 'plain' && o.unit === 'page'){ for(const pf of pageFiles(it, vopts(it, o), ent)) f.file(pf.name, pf.html); }
+    else f.file(ent, it.html);
+  });
+  z.file('_업로드안내.txt', deployGuide(list, P));
+  toast('납품 폴더를 묶는 중…');
+  saveData(deployZipName(P), await z.generateAsync({type:'blob', compression:'DEFLATE', compressionOptions:{level:6}}));
+}
 async function saveData(name, data){
   const d = await dl;
   if(d){
@@ -2178,12 +2381,18 @@ const deliver = () => document.querySelector('input[name=deliver]:checked').valu
 const LINK_OK = !!(window.PUBLISH_ENABLED && window.VBlob && window.VBlob.upload);
 function store(k, v){ try{ if(v === undefined) return JSON.parse(localStorage.getItem('kyoan:' + k)); localStorage.setItem('kyoan:' + k, JSON.stringify(v)); }catch(e){ return null; } }
 function deliverUI(){
-  const o = opts(), link = deliver() === 'link';
+  const o = opts(), d = deliver(), link = d === 'link', git = d === 'git';
   $('#linkBox').hidden = !link;
+  $('#ghBox').hidden = !git;
+  $('#ghGroup').hidden = !git;
+  $('#pathOnRow').hidden = git;
   $('#linkOff').hidden = LINK_OK; $('#linkOn').hidden = !LINK_OK;
-  $('#saveLbl').textContent = link ? '링크 만들기' : (o.kind === 'plain' && o.unit === 'page' ? '페이지별 ZIP 저장' : 'HTML 저장');
+  $('#saveLbl').textContent = git ? '웹에 저장하고 링크 만들기'
+    : link ? '링크 만들기'
+    : ($('#pathOn').checked ? '납품 ZIP 저장' : (o.kind === 'plain' && o.unit === 'page' ? '페이지별 ZIP 저장' : 'HTML 저장'));
   $('#saveIco').setAttribute('d', link ? 'M6.5 9.5a3 3 0 0 0 4.2 0l2-2a3 3 0 0 0-4.2-4.2l-.8.8M9.5 6.5a3 3 0 0 0-4.2 0l-2 2a3 3 0 0 0 4.2 4.2l.8-.8' : 'M8 2v8m0 0 3-3m-3 3L5 7M3 12.5h10');
   $('#save').disabled = !sel || sel.status !== 'done' || (link && !LINK_OK);
+  if(git){ $('#pathFields').hidden = false; if(window.ghUI) ghUI(); }
   $('#linkOutRow').hidden = true;
   renderLinks();
 }
@@ -2249,28 +2458,31 @@ $('#reconv').addEventListener('click', () => { if(sel && !sel.demo && sel.file){
 $('#save').addEventListener('click', async () => {
   if(!sel || sel.status !== 'done') return;
   if(deliver() === 'link'){ publishLink(sel); return; }
-  const o = opts();
+  if(deliver() === 'git'){ if(window.ghSave) await ghSave(sel); return; }
+  const o = opts(), P = pathOpts();
+  if(P.on){ await saveDeploy([sel], o, P); return; }
   if(o.kind === 'plain' && o.unit === 'page'){
     if(!window.JSZip){ toast('ZIP 엔진을 불러오지 못했습니다.'); return; }
-    const z = new JSZip(); const dir = z.folder(fileName(sel.title));
+    const base = fileName(sel); const z = new JSZip(); const dir = z.folder(base);
     for(const f of pageFiles(sel, vopts(sel, o))) dir.file(f.name, f.html);
     toast('페이지별 파일을 묶는 중…');
-    saveData(fileName(sel.title) + '_페이지별.zip', await z.generateAsync({type:'blob', compression:'DEFLATE', compressionOptions:{level:6}}));
-  } else saveData(fileName(sel.title) + '.html', new Blob([sel.html], {type:'text/html'}));
+    saveData(base + '-pages.zip', await z.generateAsync({type:'blob', compression:'DEFLATE', compressionOptions:{level:6}}));
+  } else saveData(fileName(sel) + '.html', new Blob([sel.html], {type:'text/html'}));
 });
 $('#zipAll').addEventListener('click', async () => {
   const done = items.filter(x => x.status === 'done' && !x.demo); if(!done.length) return;
   if(!window.JSZip){ toast('ZIP 엔진을 불러오지 못했습니다.'); return; }
+  const o = opts(), P = pathOpts();
+  if(P.on){ await saveDeploy(done, o, P); return; }
   const z = new JSZip(), seen = new Set();
-  const o = opts();
   for(const it of done){
-    let n = fileName(it.title), k = 2; while(seen.has(n)) n = fileName(it.title) + ` (${k++})`; seen.add(n);
+    let n = fileName(it); while(seen.has(n)) n = it.code = newCode(); seen.add(n);
     if(o.kind === 'plain' && o.unit === 'page'){ const d = z.folder(n); for(const f of pageFiles(it, vopts(it, o))) d.file(f.name, f.html); }
     else z.file(n + '.html', it.html);
   }
   toast('ZIP 파일을 만드는 중…');
   const blob = await z.generateAsync({type:'blob', compression:'DEFLATE', compressionOptions:{level:6}});
-  saveData('교안_HTML_묶음.zip', blob);
+  saveData(`lessons-${stamp()}-${rnd(5)}.zip`, blob);
 });
 let tT = 0;
 $('#docTitle').addEventListener('input', e => { if(!sel || sel.status !== 'done') return; sel.title = e.target.value; clearTimeout(tT); tT = setTimeout(() => { build(sel); select(sel); }, 400); });
@@ -2285,18 +2497,405 @@ function kindUI(){
   $('#modeField').hidden = $('#sideField').hidden = o.kind !== 'viewer';
   $('#unitField').hidden = o.kind !== 'plain';
   $('#kindHint').textContent = o.kind === 'flip' ? '종이책처럼 모서리를 잡아 넘기는 전자책(플립북)으로 만듭니다. 차시마다 HTML 파일 하나, 인터넷 없이 실행됩니다.' : o.kind === 'viewer' ? '넘김 버튼·목차·검색·책갈피가 있는 이북 화면으로 만듭니다.' : '버튼·메뉴 없이 교안 페이지만 위에서 아래로 담습니다. 스크립트가 없는 순수 HTML입니다.';
-  $('#unitHint').textContent = o.unit === 'page' ? '페이지마다 HTML 파일을 따로 만들어 ZIP 하나로 저장합니다. (예: 교안_01.html, 교안_02.html …)' : '교안 전체가 HTML 파일 하나로 저장됩니다.';
+  $('#unitHint').textContent = o.unit === 'page' ? '페이지마다 HTML 파일을 따로 만들어 ZIP 하나로 저장합니다. 파일명은 오류 없는 영문으로 자동 생성됩니다. (예: lesson-20260921-a1b2c-01.html)' : '교안 전체가 HTML 파일 하나로 저장됩니다.';
   deliverUI();
 }
 document.querySelectorAll('input[name=kind]').forEach(r => r.addEventListener('change', () => { kindUI(); viewerChanged(); }));
 document.querySelectorAll('input[name=unit]').forEach(r => r.addEventListener('change', () => { kindUI(); renderStats(); }));
 kindUI();
+pathInit();
 ['#optText','#fmt','#optLinks','#optHidden','#optOpt'].forEach(s => $(s).addEventListener('change', () => renderReport()));
 document.querySelectorAll('input[name=res]').forEach(r => r.addEventListener('change', () => { $('#resHint').textContent = RES_HINT[r.value]; renderReport(); }));
 
 /* boot with an example */
 const demo = {id:++seq, demo:true, name:'예시 교안 (샘플)', ext:'demo', title:'[예시] 소상공인 디지털 마케팅 1차시', status:'done', deck:demoDeck()};
 build(demo); items.push(demo); select(demo);
+
+/* ========== 웹 저장 (GitHub) ==========
+   변환 결과를 저장소에 직접 올리고 주소를 만든다.
+   토큰은 이 브라우저에만 저장되고 서버로 가지 않는다. */
+const GKEYS = ['ghRepo', 'ghBranch', 'ghMaxFile', 'ghMaxTotal', 'ghMaxCount', 'ghKeepDays'];
+const MB = 1048576;
+const INDEX_FILE = '_ebook-index.json';
+
+let TOKEN = null;   /* 비밀번호로 풀어 낸 GitHub 토큰 (메모리에만) */
+function ghCfg(){
+  const num = (id, d) => { const v = parseFloat($('#' + id).value); return isFinite(v) && v > 0 ? v : d; };
+  return {
+    repo: $('#ghRepo').value.trim().replace(/^https?:\/\/github\.com\//i, '').replace(/\.git$/i, '').replace(/^\/+|\/+$/g, ''),
+    branch: $('#ghBranch').value.trim() || 'main',
+    token: TOKEN || '',
+    maxFile: num('ghMaxFile', 30) * MB,
+    maxTotal: num('ghMaxTotal', 500) * MB,
+    maxCount: Math.round(num('ghMaxCount', 30)),
+    keepDays: Math.round(num('ghKeepDays', 180))
+  };
+}
+
+/* ---------- 비밀번호 금고 ----------
+   GitHub 토큰을 비밀번호로 잠가 이 브라우저에 보관한다.
+   화면에는 비밀번호만 나오고, 토큰은 잠금을 풀었을 때만 메모리에 있다. */
+const TE = new TextEncoder(), TD = new TextDecoder();
+const toB64 = buf => btoa(String.fromCharCode.apply(null, new Uint8Array(buf)));
+const fromB64 = s64 => { const b = atob(s64), u = new Uint8Array(b.length); for(let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return u; };
+const CRYPTO_OK = !!(window.crypto && crypto.subtle && crypto.subtle.deriveKey);
+async function pwKey(pw, salt){
+  const km = await crypto.subtle.importKey('raw', TE.encode(pw), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey({name:'PBKDF2', salt, iterations:250000, hash:'SHA-256'}, km, {name:'AES-GCM', length:256}, false, ['encrypt','decrypt']);
+}
+async function vaultMake(token, pw){
+  const salt = crypto.getRandomValues(new Uint8Array(16)), iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = await crypto.subtle.encrypt({name:'AES-GCM', iv}, await pwKey(pw, salt), TE.encode(token));
+  return {v:1, s:toB64(salt), i:toB64(iv), c:toB64(ct)};
+}
+async function vaultOpen(v, pw){
+  const pt = await crypto.subtle.decrypt({name:'AES-GCM', iv:fromB64(v.i)}, await pwKey(pw, fromB64(v.s)), fromB64(v.c));
+  return TD.decode(pt);
+}
+const vaultGet = () => store('gh:vault');
+const vaultSet = v => store('gh:vault', v);
+const CODE_TAG = 'KYOAN1-';
+const vaultCode = v => CODE_TAG + btoa(JSON.stringify(v));
+function vaultFromCode(txt){
+  const t = String(txt || '').trim().replace(/\s+/g, '');
+  if(t.indexOf(CODE_TAG) !== 0) throw new Error('설정 코드 형식이 아닙니다.');
+  const v = JSON.parse(atob(t.slice(CODE_TAG.length)));
+  if(!v || v.v !== 1 || !v.s || !v.i || !v.c) throw new Error('설정 코드가 손상되었습니다.');
+  return v;
+}
+/* 비밀번호로 잠금 풀기 (이미 풀려 있으면 그대로) */
+async function ghUnlock(){
+  if(TOKEN) return true;
+  if(!CRYPTO_OK){ toast('이 화면에서는 비밀번호 잠금을 쓸 수 없습니다. https 주소로 열어 주세요.'); return false; }
+  const v = vaultGet();
+  if(!v){ ghState('먼저 «관리자 설정» 을 열어 비밀번호를 만들어 주세요.', 'bad'); $('#ghAdmin').open = true; return false; }
+  const pw = $('#ghPw').value;
+  if(!pw){ ghState('비밀번호를 넣어 주세요.', 'bad'); return false; }
+  try{
+    TOKEN = await vaultOpen(v, pw);
+    if($('#ghRemember').checked) store('gh:pw', pw);
+    return true;
+  }catch(e){ ghState('비밀번호가 맞지 않습니다.', 'bad'); return false; }
+}
+
+/* 용량·개수를 세는 범위: 저장 경로의 첫 단계까지 (예: public/webcontents) */
+function ghScope(P){ return [P.wrap, (P.path || '').split('/')[0]].filter(Boolean).join('/'); }
+
+async function ghApi(c, path, opt){
+  const o = Object.assign({}, opt || {});
+  o.headers = Object.assign({
+    Authorization: 'Bearer ' + c.token,
+    Accept: 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28'
+  }, o.headers || {});
+  let r;
+  try{ r = await fetch('https://api.github.com/repos/' + c.repo + path, o); }
+  catch(e){ throw new Error('GitHub 에 연결하지 못했습니다. 인터넷 연결을 확인해 주세요.'); }
+  if(r.status === 404){ const e = new Error('찾을 수 없습니다'); e.status = 404; throw e; }
+  if(!r.ok){
+    let m = '';
+    try{ m = (await r.json()).message || ''; }catch(e){}
+    const e = new Error(ghMsg(r.status, m));
+    e.status = r.status;
+    throw e;
+  }
+  return r.status === 204 ? null : r.json();
+}
+function ghMsg(st, m){
+  if(st === 401) return '비밀번호가 맞지 않거나 기한이 지났습니다. 관리자에게 새 비밀번호를 받아 주세요.';
+  if(st === 403) return '이 비밀번호로는 저장소에 글을 쓸 수 없습니다. 관리자에게 권한 확인을 요청해 주세요. (' + m + ')';
+  if(st === 409) return '다른 사람이 방금 같은 저장소를 고쳤습니다. 잠시 후 다시 시도해 주세요.';
+  if(st === 422) return '저장소가 받아들이지 않았습니다: ' + m;
+  return m || ('GitHub 오류 ' + st);
+}
+/* 한글이 섞인 HTML 을 base64 로 */
+function b64(str){
+  const bytes = new TextEncoder().encode(str);
+  let s = '', CH = 0x8000;
+  for(let i = 0; i < bytes.length; i += CH) s += String.fromCharCode.apply(null, bytes.subarray(i, i + CH));
+  return btoa(s);
+}
+function unb64(b){
+  const bin = atob(b.replace(/\s+/g, ''));
+  const bytes = new Uint8Array(bin.length);
+  for(let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new TextDecoder().decode(bytes);
+}
+const byteLen = str => new TextEncoder().encode(str).length;
+
+/* 저장소에 올라가 있는 교안 목록과 용량 */
+async function ghScan(c, P){
+  const scope = ghScope(P);
+  let tree;
+  try{ tree = await ghApi(c, '/git/trees/' + encodeURIComponent(c.branch) + '?recursive=1'); }
+  catch(e){ if(e.status === 404) return {files: [], total: 0, count: 0, scope, truncated: false}; throw e; }
+  const files = (tree.tree || []).filter(x => x.type === 'blob'
+    && (!scope || x.path.indexOf(scope + '/') === 0)
+    && /\.html?$/i.test(x.path));
+  return {
+    files: files.map(x => ({path: x.path, size: x.size || 0, sha: x.sha})),
+    total: files.reduce((a, x) => a + (x.size || 0), 0),
+    count: files.length, scope, truncated: !!tree.truncated
+  };
+}
+/* 저장 내역 파일 (저장소 안에 함께 보관 → 다른 PC 에서도 같은 목록이 보인다) */
+async function ghIndex(c, P){
+  const p = [ghScope(P), INDEX_FILE].filter(Boolean).join('/');
+  try{
+    const r = await ghApi(c, '/contents/' + p + '?ref=' + encodeURIComponent(c.branch));
+    return {path: p, sha: r.sha, list: JSON.parse(unb64(r.content)) || []};
+  }catch(e){
+    if(e.status === 404) return {path: p, sha: null, list: []};
+    return {path: p, sha: null, list: [], failed: true};
+  }
+}
+async function ghPut(c, path, text, sha, msg){
+  const body = {message: msg, content: b64(text), branch: c.branch};
+  if(sha) body.sha = sha;
+  return ghApi(c, '/contents/' + path.split('/').map(encodeURIComponent).join('/'), {
+    method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)
+  });
+}
+async function ghDel(c, path, sha, msg){
+  return ghApi(c, '/contents/' + path.split('/').map(encodeURIComponent).join('/'), {
+    method: 'DELETE', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({message: msg, sha, branch: c.branch})
+  });
+}
+async function ghSaveIndex(c, idx, entry, removePath){
+  let list = idx.list.filter(x => x.path !== (entry ? entry.path : removePath));
+  if(entry) list.unshift(entry);
+  list = list.slice(0, 500);
+  try{ await ghPut(c, idx.path, JSON.stringify(list, null, 1), idx.sha, 'chore: update ebook index'); }
+  catch(e){ console.warn('index', e); }
+  return list;
+}
+
+/* ---------- 화면 ---------- */
+function ghState(msg, kind){
+  const el = $('#ghStat');
+  el.textContent = msg;
+  el.className = 'hint' + (kind ? ' ' + kind : '');
+}
+function ghBar(used, limit){
+  const pct = Math.min(100, Math.round(used / limit * 100));
+  return '<span class="ubar"><i style="width:' + pct + '%" class="' + (pct >= 90 ? 'bad' : pct >= 70 ? 'warn' : '') + '"></i></span>';
+}
+function ghUI(){
+  GKEYS.forEach(k => store('gh:' + k, $('#' + k).value));
+  const P = pathOpts(), c = ghCfg();
+  $('#ghPath').textContent = deployPath(P, 0);
+  $('#ghLinkPreview').textContent = shortURL(P, 0);
+}
+let ghScanCache = null;
+async function ghRefresh(quiet){
+  if(!await ghUnlock()){ $('#ghUsage').hidden = true; return null; }
+  const c = ghCfg(), P = pathOpts();
+  if(!c.repo){ $('#ghUsage').hidden = true; if(!quiet) ghState('관리자 설정에서 저장소를 적어 주세요.', 'bad'); return null; }
+  try{
+    if(!quiet) ghState('저장소를 확인하는 중…');
+    const s = await ghScan(c, P);
+    ghScanCache = s;
+    renderUsage(s, c);
+    if(!quiet) ghState('연결됨 · ' + c.repo + ' (' + c.branch + ')', 'ok');
+    return s;
+  }catch(e){
+    $('#ghUsage').hidden = true;
+    ghState(e.message, 'bad');
+    return null;
+  }
+}
+function renderUsage(s, c){
+  const days = x => x.at ? Math.floor((Date.now() - x.at) / 86400000) : null;
+  const idx = (store('gh:index') || []);
+  const meta = {};
+  idx.forEach(x => meta[x.path] = x);
+  const rows = s.files.slice().sort((a, b) => a.path < b.path ? -1 : 1).map(f => {
+    const m = meta[f.path] || {}, d = days(m);
+    const old = c.keepDays && d != null && d > c.keepDays;
+    return '<li' + (old ? ' class="old"' : '') + '><span class="gp" title="' + esc(f.path) + '">' + esc(f.path.replace(s.scope + '/', '')) + '</span>'
+      + '<span class="gs">' + fmtSize(f.size) + (d != null ? ' · ' + d + '일 전' : '') + '</span>'
+      + '<button class="btn mini" data-del="' + esc(f.path) + '" data-sha="' + esc(f.sha) + '">삭제</button></li>';
+  }).join('');
+  $('#ghUsage').hidden = false;
+  $('#ghUsage').innerHTML =
+    '<div class="urow"><b>용량</b> ' + fmtSize(s.total) + ' / ' + fmtSize(c.maxTotal) + ghBar(s.total, c.maxTotal) + '</div>'
+    + '<div class="urow"><b>교안</b> ' + s.count + '개 / ' + c.maxCount + '개' + ghBar(s.count, c.maxCount) + '</div>'
+    + (s.truncated ? '<span class="hint">저장소가 매우 커서 일부만 집계했습니다.</span>' : '')
+    + (rows ? '<details class="glist"><summary>저장된 교안 ' + s.count + '개 보기</summary><ul>' + rows + '</ul></details>'
+            : '<span class="hint">아직 올라간 교안이 없습니다.</span>');
+}
+
+/* ---------- 저장 ---------- */
+function ghProg(txt, pct){
+  $('#ghProg').hidden = false;
+  $('#ghProgT').textContent = txt;
+  $('#ghBar2').style.width = (pct == null ? 100 : pct) + '%';
+}
+async function ghSave(it){
+  let c = ghCfg();
+  const P = pathOpts();
+  if(!c.repo || !/^[\w.-]+\/[\w.-]+$/.test(c.repo)){ toast('저장소를 소유자/이름 형태로 적어 주세요. 예: whomedia01/0818'); return; }
+  if(!await ghUnlock()) return;
+  c.token = TOKEN;
+  if(!P.path){ toast('주소 경로를 적어 주세요.'); return; }
+
+  const html = it.html, size = byteLen(html), path = deployPath(P, 0);
+  const btn = $('#save');
+
+  /* 안전장치 1 — 파일 한 개 용량 */
+  if(size > c.maxFile){
+    toast('이 교안은 ' + fmtSize(size) + ' 로 한 파일 한도(' + fmtSize(c.maxFile) + ')를 넘습니다. 고급 설정에서 화질을 «표준»으로 낮춰 다시 변환하거나, 한도를 올리세요.');
+    return;
+  }
+  btn.disabled = true;
+  try{
+    ghProg('저장소 상태를 확인하는 중…', 15);
+    const s = await ghScan(c, P);
+    ghScanCache = s;
+    const exist = s.files.filter(f => f.path === path)[0];
+
+    /* 안전장치 2 — 덮어쓰기 확인 */
+    if(exist && !confirm('같은 경로에 이미 파일이 있습니다.\n\n' + path + '\n기존 ' + fmtSize(exist.size) + ' → 새로 ' + fmtSize(size) + '\n\n덮어쓸까요?')){
+      throw new Error('__cancel');
+    }
+    /* 안전장치 3 — 저장소 총 용량 */
+    const after = s.total - (exist ? exist.size : 0) + size;
+    if(after > c.maxTotal){
+      throw new Error('저장소 총 용량 한도를 넘습니다. 현재 ' + fmtSize(s.total) + ' + 이번 ' + fmtSize(size)
+        + ' → 한도 ' + fmtSize(c.maxTotal) + '. 아래 목록에서 오래된 교안을 지우거나 한도를 조정하세요.');
+    }
+    /* 안전장치 4 — 개수 */
+    if(!exist && s.count + 1 > c.maxCount){
+      throw new Error('교안 개수 한도(' + c.maxCount + '개)에 도달했습니다. 아래 목록에서 정리한 뒤 다시 저장하세요.');
+    }
+    /* 안전장치 5 — 최종 확인 */
+    const url = shortURL(P, 0);
+    if(!confirm('아래 내용으로 저장합니다.\n\n저장소  ' + c.repo + ' (' + c.branch + ')\n경로     ' + path
+      + '\n용량     ' + fmtSize(size) + '\n주소     ' + url
+      + '\n\n저장 후 사용량  ' + fmtSize(after) + ' / ' + fmtSize(c.maxTotal) + '\n\n계속할까요?')){
+      throw new Error('__cancel');
+    }
+
+    ghProg('교안을 올리는 중… (' + fmtSize(size) + ')', 55);
+    await ghPut(c, path, html, exist ? exist.sha : null,
+      (exist ? 'update' : 'add') + ' ebook: ' + path);
+
+    ghProg('저장 내역을 갱신하는 중…', 85);
+    const idx = await ghIndex(c, P);
+    const entry = {path, title: it.title || '', size, at: Date.now(), by: 'kyoan-converter'};
+    const list = await ghSaveIndex(c, idx, entry);
+    store('gh:index', list);
+
+    $('#ghOut').value = url;
+    $('#ghOpen').href = url;
+    $('#ghOutRow').hidden = false;
+    const links = store('links') || [];
+    links.unshift({t: it.title, u: url, d: Date.now()});
+    store('links', links.slice(0, 50));
+    renderLinks();
+    toast('저장했습니다. 배포가 끝나면 (보통 1~2분) 주소가 열립니다.');
+    await ghRefresh(true);
+  }catch(e){
+    if(e.message !== '__cancel'){ console.error(e); toast(e.message || '저장하지 못했습니다.'); }
+  }finally{
+    $('#ghProg').hidden = true;
+    btn.disabled = false;
+  }
+}
+
+/* ---------- 삭제 ---------- */
+async function ghDelete(path, sha){
+  if(!await ghUnlock()) return;
+  const c = ghCfg(), P = pathOpts();
+  if(!confirm('저장소에서 지웁니다. 되돌릴 수 없습니다.\n\n' + path + '\n\n이 주소로 전달한 링크가 있다면 함께 열리지 않게 됩니다. 계속할까요?')) return;
+  try{
+    ghProg('지우는 중…', 50);
+    await ghDel(c, path, sha, 'remove ebook: ' + path);
+    const idx = await ghIndex(c, P);
+    const list = await ghSaveIndex(c, idx, null, path);
+    store('gh:index', list);
+    toast('지웠습니다.');
+    await ghRefresh(true);
+  }catch(e){ toast(e.message || '지우지 못했습니다.'); }
+  finally{ $('#ghProg').hidden = true; }
+}
+
+/* ---------- 초기화 ---------- */
+function ghInit(){
+  GKEYS.forEach(k => { const v = store('gh:' + k); if(typeof v === 'string' && v !== '') $('#' + k).value = v; });
+  const rm = store('gh:remember');
+  $('#ghRemember').checked = (rm == null) ? true : !!rm;
+  const savedPw = store('gh:pw');
+  if($('#ghRemember').checked && typeof savedPw === 'string') $('#ghPw').value = savedPw;
+
+  GKEYS.forEach(k => $('#' + k).addEventListener('input', ghUI));
+  ['#pBase', '#pPath', '#pUnit', '#pFile', '#pWrap'].forEach(s2 => { const el = $(s2); if(el) el.addEventListener('input', ghUI); });
+  $('#ghPw').addEventListener('input', () => {
+    TOKEN = null;
+    if($('#ghRemember').checked) store('gh:pw', $('#ghPw').value);
+  });
+  $('#ghRemember').addEventListener('change', e => {
+    store('gh:remember', e.target.checked);
+    store('gh:pw', e.target.checked ? $('#ghPw').value : '');
+  });
+  $('#ghTest').addEventListener('click', () => ghRefresh(false));
+  $('#ghUsage').addEventListener('click', e => {
+    const b = e.target.closest('button[data-del]');
+    if(b) ghDelete(b.dataset.del, b.dataset.sha);
+  });
+
+  /* 관리자 설정 */
+  const admStat = (m, k) => { const el = $('#ghAdmStat'); el.textContent = m; el.className = 'hint' + (k ? ' ' + k : ''); };
+  const v0 = vaultGet();
+  if(v0){ $('#ghCode').value = vaultCode(v0); }
+  else { $('#ghAdmin').open = true; admStat('토큰과 비밀번호를 넣고 «비밀번호 만들기» 를 누르세요.'); }
+
+  $('#ghAdmSave').addEventListener('click', async () => {
+    const tok = $('#ghAdmTok').value.trim(), pw = $('#ghAdmPw').value.trim();
+    if(!CRYPTO_OK){ admStat('https 주소로 열어야 비밀번호를 만들 수 있습니다.', 'bad'); return; }
+    if(!tok){ admStat('GitHub 토큰을 넣어 주세요.', 'bad'); return; }
+    if(pw.length < 4){ admStat('비밀번호는 4자 이상으로 정해 주세요.', 'bad'); return; }
+    try{
+      const v = await vaultMake(tok, pw);
+      vaultSet(v);
+      $('#ghCode').value = vaultCode(v);
+      $('#ghAdmTok').value = '';
+      $('#ghPw').value = pw;
+      TOKEN = tok;
+      if($('#ghRemember').checked) store('gh:pw', pw);
+      admStat('만들었습니다. 이제 직원에게 이 비밀번호만 알려 주면 됩니다.', 'ok');
+      toast('비밀번호를 만들었습니다. 토큰은 잠금 안에 보관됩니다.');
+      ghRefresh(false);
+    }catch(e){ admStat('만들지 못했습니다: ' + (e.message || ''), 'bad'); }
+  });
+  $('#ghCodeCopy').addEventListener('click', async () => {
+    const v = $('#ghCode').value; if(!v) return;
+    try{ await navigator.clipboard.writeText(v); }
+    catch(e){ $('#ghCode').select(); try{ document.execCommand('copy'); }catch(_){} }
+    toast('설정 코드를 복사했습니다. 다른 PC 의 같은 칸에 붙여넣으세요.');
+  });
+  $('#ghCodeApply').addEventListener('click', () => {
+    try{
+      const v = vaultFromCode($('#ghCode').value);
+      vaultSet(v); TOKEN = null;
+      admStat('적용했습니다. 위 비밀번호 칸에 비밀번호를 넣고 «연결 확인» 을 누르세요.', 'ok');
+      toast('설정을 적용했습니다.');
+    }catch(e){ admStat(e.message, 'bad'); }
+  });
+
+  $('#ghCopy').addEventListener('click', async () => {
+    const v = $('#ghOut').value; if(!v) return;
+    try{ await navigator.clipboard.writeText(v); }
+    catch(e){ $('#ghOut').select(); try{ document.execCommand('copy'); }catch(_){} }
+    toast('주소를 복사했습니다.');
+  });
+  ghUI();
+}
+window.ghSave = ghSave;
+window.ghUI = ghUI;
+ghInit();
+
 })();
 
 </script>
