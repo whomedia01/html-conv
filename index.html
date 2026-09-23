@@ -194,7 +194,7 @@ details.more[open] summary{margin-bottom:12px}
   <header class="mast">
     <div>
       <h1>교안 <em>HTML</em> 변환기</h1>
-      <p>PPT·PDF 교안을 <b>책장이 넘어가는 전자책(플립북) HTML</b>로 바꿉니다. 변환은 브라우저 안에서 이뤄집니다. 파일로 내려받거나, <b>웹 저장</b>으로 회사 저장소에 올려 바로 전달할 주소를 만들 수 있습니다.</p>
+      <p>교안 <b>PDF</b>를 책장이 넘어가는 <b>전자책(플립북) HTML</b>로 바꿉니다. PPT는 <b>PDF로 저장한 뒤</b> 올려 주세요. 변환은 브라우저 안에서 이뤄지고, <b>웹 저장</b>으로 바로 전달할 주소가 만들어집니다.</p>
     </div>
     <div class="flow" aria-label="권장 작업 흐름">
       <span><b>1</b> PPT 작업</span><i>→</i>
@@ -208,10 +208,10 @@ details.more[open] summary{margin-bottom:12px}
       <section class="panel">
         <div class="pad">
           <label class="drop" id="drop" for="file">
-            <input type="file" id="file" class="sr" accept=".pdf,.pptx,application/pdf,application/vnd.openxmlformats-officedocument.presentationml.presentation" multiple>
-            <strong>교안 파일을 끌어다 놓기</strong>
+            <input type="file" id="file" class="sr" accept=".pdf,application/pdf" multiple>
+            <strong>교안 PDF를 끌어다 놓기</strong>
             <small>또는 클릭해서 선택 · 여러 차시 동시 변환</small>
-            <span class="types"><span class="chip">.pdf</span><span class="chip">.pptx</span></span>
+            <span class="types"><span class="chip">.pdf</span></span>
           </label>
         </div>
       </section>
@@ -464,14 +464,14 @@ details.more[open] summary{margin-bottom:12px}
         <h2 id="ch">납품 전 확인</h2>
         <div class="check">
           <div><span class="k">PPT → PDF</span><b>원본과 100% 동일하게 하려면</b><span>PowerPoint의 파일 › 내보내기 › PDF로 먼저 저장한 뒤 올리세요. 글꼴·도형·차트가 그대로 보존됩니다.</span></div>
-          <div><span class="k">PPTX 직접</span><b>글자를 살린 편집형 변환</b><span>텍스트·이미지·표·기본 도형·차트를 HTML로 재구성합니다. 특수 효과·일부 도형은 단순화됩니다.</span></div>
+          <div><span class="k">PPT 사용 시</span><b>반드시 PDF로 저장</b><span>PPTX를 바로 올리면 글꼴이 깨질 수 있어 받지 않습니다. 파일 › 내보내기 › PDF 만들기 를 쓰세요.</span></div>
           <div><span class="k">용량</span><b>LMS 업로드 제한 확인</b><span>웹 저장으로 링크를 만들면 용량 제한을 신경 쓰지 않아도 됩니다. 파일로 보내야 한다면 고급 설정에서 화질을 낮추세요.</span></div>
           <div><span class="k">검수</span><b>오프라인에서 한 번 열어보기</b><span>저장한 파일을 인터넷을 끈 PC에서 더블클릭해 이미지·목차·넘김이 정상인지 확인하세요.</span></div>
         </div>
       </section>
     </div>
   </div>
-  <p class="foot">결과 HTML은 외부 서버·라이브러리 없이 단독 실행됩니다 · 크롬·엣지·사파리·모바일 지원 · 플립북 조작: ←/→ 넘김 · 모서리 끌기 · +/−/0 확대·원래 크기 · Ctrl+휠·두 손가락 확대 · 확대 중 끌어서 이동</p>
+  <p class="foot"><a id="manLink" href="manual.html" target="_blank" rel="noopener" hidden style="color:var(--accent);font-weight:600;text-decoration:none">사용설명서 열기</a><span id="manSep" hidden> · </span>결과 HTML은 외부 서버·라이브러리 없이 단독 실행됩니다 · 크롬·엣지·사파리·모바일 지원 · 플립북 조작: ←/→ 넘김 · 모서리 끌기 · +/−/0 확대·원래 크기 · Ctrl+휠·두 손가락 확대 · 확대 중 끌어서 이동</p>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
@@ -877,6 +877,16 @@ body.th-sepia{--fg:#3a2e22;--mut:#7a6a57;--bar:rgba(250,244,232,.95);--line:rgba
 .fb{font-size:12px;color:var(--mut);text-align:center;width:100%;margin-top:2px}
 .protect{-webkit-user-select:none;user-select:none}.protect .tl{display:none}
 @media (max-width:760px){#stage{padding:10px 8px}.side-arrow{display:none}.sm-hide{display:none!important}.pgn{margin:0 2px}}
+/* 모바일 가로 = 몰입 모드: 위아래 막대를 띄워 화면을 책이 다 쓰게 한다 */
+body.imm #app{grid-template-rows:minmax(0,1fr)}
+body.imm .bar{position:fixed;left:0;right:0;z-index:40;opacity:0;pointer-events:none;transition:opacity .18s ease}
+body.imm .bar.top{top:0}
+body.imm .bar.bot{bottom:0}
+body.imm.ui .bar{opacity:1;pointer-events:auto}
+body.imm #stage{padding:2px 38px}
+body.imm .hint{display:none}
+body.imm .side-arrow{opacity:.35}
+#immTip{position:absolute;left:50%;top:10px;transform:translateX(-50%);z-index:41;background:rgba(0,0,0,.66);color:#fff;font-size:12px;padding:6px 12px;border-radius:999px;pointer-events:none;transition:opacity .4s ease}
 @media print{.bar,.side-arrow,#drawer,.hint{display:none!important}}
 </script>
 <template id="f-body">
@@ -893,6 +903,7 @@ body.th-sepia{--fg:#3a2e22;--mut:#7a6a57;--bar:rgba(250,244,232,.95);--line:rgba
   <button class="side-arrow" id="aPrev" type="button" aria-label="이전 페이지"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m15 5-7 7 7 7"/></svg></button>
   <button class="side-arrow" id="aNext" type="button" aria-label="다음 페이지"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m9 5 7 7-7 7"/></svg></button>
   <div class="hint" id="hint">모서리를 끌거나 화살표로 넘기고, Ctrl+휠·두 손가락으로 확대하세요</div>
+  <div id="immTip" hidden>전체 화면으로 봅니다 · 화면을 누르면 메뉴가 나옵니다</div>
   <section id="drawer" hidden>
    <div class="dh" role="tablist"><button class="tab" type="button" role="tab" id="tP" aria-selected="true">페이지</button><button class="tab" type="button" role="tab" id="tT" aria-selected="false">목차</button><span class="sp"></span><button class="b" type="button" id="dClose" aria-label="닫기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
    <div id="thumbs"></div>
@@ -1054,6 +1065,39 @@ applyZ(false);
 var fsEl=app.requestFullscreen?'requestFullscreen':(app.webkitRequestFullscreen?'webkitRequestFullscreen':null);
 if(!fsEl)$('fsBtn').hidden=true;
 $('fsBtn').onclick=function(){if(document.fullscreenElement||document.webkitFullscreenElement)(document.exitFullscreen||document.webkitExitFullscreen).call(document);else app[fsEl]()};
+/* ---- 모바일 가로 화면: 자동으로 전체 화면처럼 보기 ---- */
+var immMQ=window.matchMedia('(orientation:landscape) and (max-height:600px)');
+var coarse=window.matchMedia('(pointer:coarse)').matches||('ontouchstart' in window);
+var wantFS=false,uiT=0,tipT=0;
+function showUI(ms){document.body.classList.add('ui');clearTimeout(uiT);if(ms)uiT=setTimeout(function(){document.body.classList.remove('ui')},ms)}
+function goFS(){
+ if(!fsEl)return;
+ if(document.fullscreenElement||document.webkitFullscreenElement){wantFS=false;return}
+ try{var p=app[fsEl]();if(p&&p.catch)p.catch(function(){wantFS=true});else wantFS=false}
+ catch(e){wantFS=true}
+}
+function immTip(){
+ var t=$('immTip');if(!t)return;
+ t.hidden=false;t.style.opacity=1;clearTimeout(tipT);
+ tipT=setTimeout(function(){t.style.opacity=0;setTimeout(function(){t.hidden=true},500)},2600);
+}
+function applyImm(){
+ var on=coarse&&immMQ.matches;
+ if(on===document.body.classList.contains('imm'))return;
+ document.body.classList.toggle('imm',on);
+ if(on){showUI(2400);immTip();wantFS=true;goFS()}
+ else{document.body.classList.remove('ui');if(document.fullscreenElement||document.webkitFullscreenElement){try{(document.exitFullscreen||document.webkitExitFullscreen).call(document)}catch(e){}}}
+ setTimeout(function(){setZoom(1,null,false);build(realIdx())},80);
+}
+if(immMQ.addEventListener)immMQ.addEventListener('change',applyImm);
+else if(immMQ.addListener)immMQ.addListener(applyImm);
+window.addEventListener('orientationchange',function(){setTimeout(applyImm,250)});
+/* 화면을 건드리면 메뉴가 잠깐 나오고, 그 손짓으로 전체 화면에 들어간다 */
+document.addEventListener('pointerdown',function(){
+ if(!document.body.classList.contains('imm'))return;
+ showUI(2400);
+ if(wantFS)goFS();
+},true);
 /* drawer */
 function buildThumbs(){if(thumbsBuilt)return;thumbsBuilt=true;var box=$('thumbs');
  P.forEach(function(p,i){var b=document.createElement('button');b.type='button';b.className='th';b.setAttribute('aria-label',(i+1)+'쪽으로 이동');
@@ -1077,6 +1121,7 @@ var hm=/^#p(\d+)$/.exec(location.hash),start=hm?Math.min(N-1,Math.max(0,+hm[1]-1
 lastW=stage.clientWidth;lastH=stage.clientHeight;
 if(!window.St||!St.PageFlip){holder.textContent='뷰어를 불러오지 못했습니다.';return}
 build(start);
+applyImm();
 })();
 </script>
 
@@ -1090,6 +1135,10 @@ build(start);
 if (window.pdfjsLib) {
   pdfjsLib.GlobalWorkerOptions.workerSrc = "vendor/pdfjs/pdf.worker.min.js";
   window.PUBLISH_ENABLED = location.protocol.indexOf('http') === 0;
+  document.addEventListener('DOMContentLoaded', function(){
+    var m = document.getElementById('manLink'), sp = document.getElementById('manSep');
+    if(m){ m.hidden = false; } if(sp){ sp.hidden = false; }
+  });
   window.PDFJS_EXTRA = { cMapUrl: new URL("vendor/pdfjs/cmaps/", location.href).href, cMapPacked: true, standardFontDataUrl: new URL("vendor/pdfjs/standard_fonts/", location.href).href };
 }
 </script>
@@ -2176,8 +2225,11 @@ function addFiles(list){
   let added = 0;
   for(const f of list){
     const ext = (f.name.split('.').pop() || '').toLowerCase();
-    if(ext === 'ppt'){ toast('.ppt(구버전)은 지원하지 않습니다. PowerPoint에서 .pptx나 PDF로 저장해 올려주세요.'); continue; }
-    if(ext !== 'pdf' && ext !== 'pptx'){ toast(`${f.name}: PDF 또는 PPTX 파일만 변환할 수 있습니다.`); continue; }
+    if(ext === 'ppt' || ext === 'pptx'){
+      toast('PPT 파일은 글꼴이 깨질 수 있어 받지 않습니다. PowerPoint 에서 [파일 › 내보내기 › PDF 만들기] 로 저장한 뒤 그 PDF 를 올려 주세요.');
+      continue;
+    }
+    if(ext !== 'pdf'){ toast(`${f.name}: PDF 파일만 올릴 수 있습니다.`); continue; }
     items.push({id:++seq, file:f, name:f.name, ext, title:f.name.replace(/\.[^.]+$/, ''), status:'wait', prog:0});
     added++;
   }
