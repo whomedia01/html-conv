@@ -851,7 +851,11 @@ body.th-sepia{--fg:#3a2e22;--mut:#7a6a57;--bar:rgba(250,244,232,.95);--line:rgba
 .tc.d1{padding-left:24px}.tc.d2{padding-left:40px;font-size:13px}
 .fb{font-size:12px;color:var(--mut);text-align:center;width:100%;margin-top:2px}
 .protect{-webkit-user-select:none;user-select:none}.protect .tl{display:none}
+<<<<<<< HEAD
 @media (max-width:760px){#stage{padding:8px 6px}.side-arrow{display:none}.sm-hide{display:none!important}.pgn{margin:0 2px}#immTip{white-space:normal;max-width:min(92vw,420px);text-align:center;font-size:12px;line-height:1.45}.hint{font-size:11px;padding:6px 10px;line-height:1.4}.bar{padding:6px 8px;gap:4px}.top{padding-top:calc(6px + env(safe-area-inset-top,0px))}.bot{padding-bottom:calc(6px + env(safe-area-inset-bottom,0px))}.b{height:34px;min-width:34px;padding:0 8px}.pin{height:34px;width:4.4em}.ttl{font-size:14px}}
+=======
+@media (max-width:760px){#stage{padding:8px 6px}.side-arrow{display:none}.sm-hide{display:none!important}.pgn{margin:0 2px}.hint,#immTip{white-space:normal;max-width:min(92vw,420px);text-align:center;font-size:12px;line-height:1.45}.bar{padding:6px 8px;gap:4px}.top{padding-top:calc(6px + env(safe-area-inset-top,0px))}.bot{padding-bottom:calc(6px + env(safe-area-inset-bottom,0px))}.b{height:34px;min-width:34px;padding:0 8px}.pin{height:34px;width:4.4em}.ttl{font-size:14px}}
+>>>>>>> 86e9021db3c3dcd93c30e67c7c1d2e17c77e0886
 /* 모바일 가로 = 몰입 모드: 위아래 막대를 띄워 화면을 책이 다 쓰게 한다 */
 body.imm #app{grid-template-rows:minmax(0,1fr)}
 body.imm .bar{position:fixed;left:0;right:0;z-index:40;opacity:0;pointer-events:none;transition:opacity .18s ease}
@@ -878,6 +882,10 @@ body.imm .side-arrow{opacity:.35}
   <div class="zbadge" id="zbadge" hidden>확대 중 · 끌어서 이동 · 더블클릭하면 원래 크기</div>
   <button class="side-arrow" id="aPrev" type="button" aria-label="이전 페이지"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m15 5-7 7 7 7"/></svg></button>
   <button class="side-arrow" id="aNext" type="button" aria-label="다음 페이지"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m9 5 7 7-7 7"/></svg></button>
+<<<<<<< HEAD
+=======
+  <div class="hint" id="hint">모서리를 끌거나 화살표로 넘기고, Ctrl+휠·두 손가락으로 확대하세요</div>
+>>>>>>> 86e9021db3c3dcd93c30e67c7c1d2e17c77e0886
   <div id="immTip" hidden>전체 화면으로 봅니다 · 화면을 누르면 메뉴가 나옵니다</div>
   <section id="drawer" hidden>
    <div class="dh" role="tablist"><button class="tab" type="button" role="tab" id="tP" aria-selected="true">페이지</button><button class="tab" type="button" role="tab" id="tT" aria-selected="false">목차</button><span class="sp"></span><button class="b" type="button" id="dClose" aria-label="닫기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
@@ -2521,6 +2529,7 @@ select(null);   /* 예시 교안 없이 빈 화면으로 시작한다 */
    ① 변환한 HTML 을 임시 자리에 올리고 ② 서버가 검사해서 저장소에 커밋한다.
    저장 권한(토큰)은 서버에만 있고, 서버는 정해진 폴더 밑의 .html 만 쓴다. 삭제 기능은 없다. */
 
+<<<<<<< HEAD
 /* 변환기가 하위 폴더(/html-conv/)에 놓여도 서버를 찾도록 기준 경로를 계산한다 */
 const BASE = (function(){
   let p = location.pathname;
@@ -2532,6 +2541,141 @@ const API_CANDS = BASE === '/' ? ['/api/'] : [BASE + 'api/', '/api/'];
 let API = null;          /* 실제로 응답한 서버 경로 */
 let LIMITS = {maxFile: 25 * 1048576, maxTotal: 400 * 1048576, maxCount: 40};
 let USAGE = null;
+=======
+let TOKEN = null;   /* 서버에서 받아 온 GitHub 토큰 (메모리에만, 저장하지 않음) */
+let SRV = null;     /* 서버가 알려 준 저장 대상 */
+function ghCfg(){
+  const num = (id, d) => { const v = parseFloat($('#' + id).value); return isFinite(v) && v > 0 ? v : d; };
+  return {
+    repo: (SRV && SRV.repo) || FIXED_REPO,
+    branch: (SRV && SRV.branch) || FIXED_BRANCH,
+    token: TOKEN || '',
+    maxFile: num('ghMaxFile', 25) * MB,
+    maxTotal: num('ghMaxTotal', 400) * MB,
+    maxCount: Math.round(num('ghMaxCount', 40)),
+    keepDays: Math.round(num('ghKeepDays', 180))
+  };
+}
+
+/* ---------- 비밀번호 금고 ----------
+   GitHub 토큰을 비밀번호로 잠가 이 브라우저에 보관한다.
+   화면에는 비밀번호만 나오고, 토큰은 잠금을 풀었을 때만 메모리에 있다. */
+const TE = new TextEncoder(), TD = new TextDecoder();
+const toB64 = buf => btoa(String.fromCharCode.apply(null, new Uint8Array(buf)));
+const fromB64 = s64 => { const b = atob(s64), u = new Uint8Array(b.length); for(let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return u; };
+const CRYPTO_OK = !!(window.crypto && crypto.subtle && crypto.subtle.deriveKey);
+async function pwKey(pw, salt){
+  const km = await crypto.subtle.importKey('raw', TE.encode(pw), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey({name:'PBKDF2', salt, iterations:250000, hash:'SHA-256'}, km, {name:'AES-GCM', length:256}, false, ['encrypt','decrypt']);
+}
+async function vaultMake(token, pw){
+  const salt = crypto.getRandomValues(new Uint8Array(16)), iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = await crypto.subtle.encrypt({name:'AES-GCM', iv}, await pwKey(pw, salt), TE.encode(token));
+  return {v:1, s:toB64(salt), i:toB64(iv), c:toB64(ct)};
+}
+async function vaultOpen(v, pw){
+  const pt = await crypto.subtle.decrypt({name:'AES-GCM', iv:fromB64(v.i)}, await pwKey(pw, fromB64(v.s)), fromB64(v.c));
+  return TD.decode(pt);
+}
+const vaultGet = () => store('gh:vault');
+const vaultSet = v => store('gh:vault', v);
+const CODE_TAG = 'KYOAN1-';
+const vaultCode = v => CODE_TAG + btoa(JSON.stringify(v));
+function vaultFromCode(txt){
+  const t = String(txt || '').trim().replace(/\s+/g, '');
+  if(t.indexOf(CODE_TAG) !== 0) throw new Error('설정 코드 형식이 아닙니다.');
+  const v = JSON.parse(atob(t.slice(CODE_TAG.length)));
+  if(!v || v.v !== 1 || !v.s || !v.i || !v.c) throw new Error('설정 코드가 손상되었습니다.');
+  return v;
+}
+/* 비밀번호로 잠금 풀기 (이미 풀려 있으면 그대로) */
+const WEB_SAVE_OK = !!window.PUBLISH_ENABLED;
+async function ghUnlock(){
+  if(TOKEN) return true;
+  const pw = $('#ghPw').value.trim();
+  if(!pw){ ghState('비밀번호를 넣어 주세요.', 'bad', true); return false; }
+
+  /* 1) 서버에 물어본다 — 배포판의 기본 경로. PC 마다 따로 설정할 필요가 없다 */
+  let srvTried = false;
+  try{
+    const r = await fetch('/api/token', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({pw})
+    });
+    const ct = r.headers.get('content-type') || '';
+    if(ct.indexOf('application/json') >= 0){
+      srvTried = true;
+      const j = await r.json().catch(() => ({}));
+      if(r.ok && j.token){
+        TOKEN = j.token;
+        SRV = {repo: j.repo, branch: j.branch};
+        if($('#ghRemember').checked) store('gh:pw', pw);
+        return true;
+      }
+      ghState(j.error || '비밀번호가 맞지 않습니다.', 'bad', true);
+      return false;
+    }
+  }catch(e){ /* 서버가 없는 화면 — 아래 예비 경로로 */ }
+
+  /* 2) 예비 경로 — 이 브라우저에 직접 등록해 둔 잠금 (구버전·오프라인용) */
+  if(!CRYPTO_OK){ ghState('https 주소로 열어 주세요.', 'bad', true); return false; }
+  const v = vaultGet();
+  if(!v){
+    ghState(srvTried ? '서버에 저장 권한이 설정되지 않았습니다.'
+      : '이 화면에서는 웹 저장을 쓸 수 없습니다. html-conv.vercel.app 에서 사용해 주세요.', 'bad', true);
+    return false;
+  }
+  try{
+    TOKEN = await vaultOpen(v, pw);
+    if($('#ghRemember').checked) store('gh:pw', pw);
+    return true;
+  }catch(e){ ghState('비밀번호가 맞지 않습니다.', 'bad', true); return false; }
+}
+
+/* 용량·개수를 세는 범위: 저장 경로의 첫 단계까지 (예: public/webcontents) */
+function ghScope(P){ return [P.wrap, (P.path || '').split('/')[0]].filter(Boolean).join('/'); }
+
+async function ghApi(c, path, opt){
+  const o = Object.assign({}, opt || {});
+  o.headers = Object.assign({
+    Authorization: 'Bearer ' + c.token,
+    Accept: 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28'
+  }, o.headers || {});
+  let r;
+  try{ r = await fetch('https://api.github.com/repos/' + c.repo + path, o); }
+  catch(e){ throw new Error('GitHub 에 연결하지 못했습니다. 인터넷 연결을 확인해 주세요.'); }
+  if(r.status === 404){ const e = new Error('찾을 수 없습니다'); e.status = 404; throw e; }
+  if(!r.ok){
+    let m = '';
+    try{ m = (await r.json()).message || ''; }catch(e){}
+    const e = new Error(ghMsg(r.status, m));
+    e.status = r.status;
+    throw e;
+  }
+  return r.status === 204 ? null : r.json();
+}
+function ghMsg(st, m){
+  if(st === 401) return '비밀번호가 맞지 않거나 기한이 지났습니다. 관리자에게 새 비밀번호를 받아 주세요.';
+  if(st === 403) return '이 비밀번호로는 저장소에 글을 쓸 수 없습니다. 관리자에게 권한 확인을 요청해 주세요. (' + m + ')';
+  if(st === 409) return '다른 사람이 방금 같은 저장소를 고쳤습니다. 잠시 후 다시 시도해 주세요.';
+  if(st === 422) return '저장소가 받아들이지 않았습니다: ' + m;
+  return m || ('GitHub 오류 ' + st);
+}
+/* 한글이 섞인 HTML 을 base64 로 */
+function b64(str){
+  const bytes = new TextEncoder().encode(str);
+  let s = '', CH = 0x8000;
+  for(let i = 0; i < bytes.length; i += CH) s += String.fromCharCode.apply(null, bytes.subarray(i, i + CH));
+  return btoa(s);
+}
+function unb64(b){
+  const bin = atob(b.replace(/\s+/g, ''));
+  const bytes = new Uint8Array(bin.length);
+  for(let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new TextDecoder().decode(bytes);
+}
+>>>>>>> 86e9021db3c3dcd93c30e67c7c1d2e17c77e0886
 const byteLen = str => new TextEncoder().encode(str).length;
 
 async function callOne(url, body){

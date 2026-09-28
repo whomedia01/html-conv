@@ -92,6 +92,7 @@ Vercel 프로젝트 → **Settings → Deployment Protection → Password Protec
 직원이 하는 일은 두 가지뿐입니다.
 
 ```
+<<<<<<< HEAD
 1. 변환기 주소 접속
 2. 교안 PDF 끌어다 놓기 → 비밀번호 who123 → [웹에 저장하고 링크 만들기]
 ```
@@ -117,12 +118,22 @@ Vercel 프로젝트 → **Settings → Deployment Protection → Password Protec
 - 비밀번호는 서버에서 검사합니다. 10분에 10번 틀리면 그 접속지가 차단되고, 틀릴 때마다 지연이 걸립니다.
 
 ### 대표님이 한 번만 (15분)
+=======
+1. https://html-conv.vercel.app  접속
+2. 교안 파일 끌어다 놓기 → 비밀번호 who123 → [웹에 저장하고 링크 만들기]
+```
+
+PC 마다 설정할 것이 없습니다. 토큰은 Vercel 서버에만 있고 브라우저로 저장되지 않습니다.
+
+### 대표님이 한 번만 (10분)
+>>>>>>> 86e9021db3c3dcd93c30e67c7c1d2e17c77e0886
 
 **(1) GitHub 토큰 발급** — github.com/settings/personal-access-tokens/new
 
 | 항목 | 값 |
 |---|---|
 | Token name | 교안저장 |
+<<<<<<< HEAD
 | Expiration | No expiration |
 | Repository access | **Only select repositories** → `0818` |
 | Permissions → Repository permissions | **Contents: Read and write** |
@@ -158,6 +169,44 @@ Vercel 프로젝트 → **Settings → Deployment Protection → Password Protec
 ### 안전장치 (모두 서버에서 검사)
 
 저장 버튼을 누르면 서버가 순서대로 확인합니다.
+=======
+| Expiration | No expiration (기한을 걸면 그날 저장이 멈춥니다) |
+| Repository access | **Only select repositories** → `0818` |
+| Permissions → Repository permissions | **Contents: Read and write** |
+
+**(2) Vercel 환경변수 2줄** — `html-conv` 프로젝트 → Settings → Environment Variables
+
+| 이름 | 값 |
+|---|---|
+| `GITHUB_TOKEN` | 위에서 복사한 `github_pat_...` |
+| `APP_PASSWORD` | `who123` |
+
+저장 대상을 바꾸려면 `GITHUB_REPO`(기본 `whomedia01/0818`), `GITHUB_BRANCH`(기본 `main`)도 넣을 수 있습니다.
+
+**(3) Deployments → 맨 위 배포 → Redeploy**
+
+끝입니다. 이후 어느 PC에서 열어도 비밀번호만 치면 저장됩니다.
+
+### 확인
+
+`https://html-conv.vercel.app/api/health` 를 열어
+
+```json
+{"ok":true,"save":true,"repo":"whomedia01/0818"}
+```
+
+`save`가 `true`면 준비된 것입니다. `false`면 `GITHUB_TOKEN` 이 아직 안 들어갔거나 재배포를 안 한 상태입니다.
+
+### 비밀번호 보호
+
+- 10분 안에 10번 틀리면 그 접속지에서 잠시 차단됩니다.
+- 틀린 비밀번호에는 0.4초 지연이 걸려 무작위 대입이 느려집니다.
+- 비밀번호는 서버에만 있고 화면 코드에는 없습니다. 바꾸려면 `APP_PASSWORD` 값만 고치고 재배포하면 됩니다.
+
+### 3) 안전장치
+
+저장 버튼을 누르면 올리기 전에 순서대로 확인합니다.
+>>>>>>> 86e9021db3c3dcd93c30e67c7c1d2e17c77e0886
 
 | 검사 | 기본값 | 넘으면 |
 |---|---|---|
