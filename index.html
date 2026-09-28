@@ -52,6 +52,22 @@ button,input,select{font:inherit;color:inherit}
 .flow b{font-family:var(--mono);font-weight:500;font-size:11px;color:var(--muted)}
 .flow i{font-style:normal;color:var(--muted)}
 .flow .end{border-color:var(--accent);color:var(--accent);font-weight:600}
+.mast-side{display:flex;flex-direction:column;align-items:flex-end;gap:12px}
+.manbtn{display:inline-flex;align-items:center;gap:10px;padding:11px 20px 11px 16px;border-radius:999px;
+  background:var(--chalk);color:#1A1304;border:1px solid #B98C22;font-weight:700;font-size:15.5px;letter-spacing:-.005em;
+  text-decoration:none;line-height:1.2;box-shadow:0 1px 2px rgba(0,0,0,.10),0 0 0 4px rgba(233,185,73,.22);
+  transition:transform .12s ease,box-shadow .12s ease}
+.manbtn:hover{transform:translateY(-1px);box-shadow:0 3px 8px rgba(0,0,0,.16),0 0 0 6px rgba(233,185,73,.3)}
+.manbtn:active{transform:none}
+.manbtn svg{width:21px;height:21px;flex:none;stroke-width:2}
+.manbtn small{display:block;margin-top:1px;font-size:12px;font-weight:600;color:#4A3A10;letter-spacing:0}
+.manbtn span{display:block}
+@keyframes manpop{0%,100%{box-shadow:0 1px 2px rgba(0,0,0,.10),0 0 0 4px rgba(233,185,73,.22)}
+  50%{box-shadow:0 1px 2px rgba(0,0,0,.10),0 0 0 11px rgba(233,185,73,.03)}}
+.manbtn:not(:hover){animation:manpop 1.9s ease-in-out 3}
+@media (prefers-reduced-motion:reduce){.manbtn{animation:none!important;transition:none}}
+@media (max-width:720px){.mast-side{align-items:stretch;width:100%}
+  .manbtn{justify-content:center;font-size:16px;padding:13px 18px}}
 
 /* workspace */
 .work{display:grid;grid-template-columns:minmax(0,360px) minmax(0,1fr);gap:20px;padding-top:20px;align-items:start}
@@ -139,7 +155,10 @@ details.more[open] summary{margin-bottom:12px}
 .check div{display:grid;gap:2px}
 .check b{font-size:13px}
 .check span{color:var(--muted);font-size:12px}
-.check .k{font-family:var(--mono);font-size:11px;color:var(--accent)}
+.check .k{display:inline-flex;align-items:center;justify-content:center;width:19px;height:19px;border-radius:50%;
+  background:var(--accent);color:var(--accent-ink);font-family:var(--mono);font-size:11px;font-weight:600;margin-bottom:3px}
+.check span b{font-size:inherit;font-weight:600;color:var(--ink)}
+.check div{align-content:start}
 .toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 20px);transform:translateX(-50%);background:var(--ink);color:var(--surface);padding:10px 16px;border-radius:8px;font-weight:500;box-shadow:0 6px 24px rgba(0,0,0,.2);z-index:10;max-width:calc(100% - 32px)}
 .deliver{min-width:180px}
 .deliver label{padding:7px 12px;white-space:nowrap}
@@ -196,10 +215,16 @@ details.more[open] summary{margin-bottom:12px}
       <h1>교안 <em>HTML</em> 변환기</h1>
       <p>교안 <b>PDF</b>를 책장이 넘어가는 <b>전자책(플립북) HTML</b>로 바꿉니다. PPT는 <b>PDF로 저장한 뒤</b> 올려 주세요. 변환은 브라우저 안에서 이뤄지고, <b>웹 저장</b>으로 바로 전달할 주소가 만들어집니다.</p>
     </div>
-    <div class="flow" aria-label="권장 작업 흐름">
-      <span><b>1</b> PPT 작업</span><i>→</i>
-      <span><b>2</b> PDF로 내보내기</span><i>→</i>
-      <span class="end"><b>3</b> 여기서 HTML 변환</span>
+    <div class="mast-side">
+      <a id="manLink" class="manbtn" href="manual.html" target="_blank" rel="noopener" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2 2 0 0 1 6 3.5h5v17H6a2 2 0 0 0-2 2z"/><path d="M20 5.5a2 2 0 0 0-2-2h-5v17h5a2 2 0 0 1 2 2z"/><path d="M11 3.5v17"/></svg>
+        <span>사용설명서 보기<small>처음이신가요? 3분이면 됩니다</small></span>
+      </a>
+      <div class="flow" aria-label="권장 작업 흐름">
+        <span><b>1</b> PPT 작업</span><i>→</i>
+        <span><b>2</b> PDF로 내보내기</span><i>→</i>
+        <span class="end"><b>3</b> 여기서 HTML 변환</span>
+      </div>
     </div>
   </header>
 
@@ -438,15 +463,14 @@ details.more[open] summary{margin-bottom:12px}
       <section class="panel" aria-labelledby="ch">
         <h2 id="ch">납품 전 확인</h2>
         <div class="check">
-          <div><span class="k">PPT → PDF</span><b>원본과 100% 동일하게 하려면</b><span>PowerPoint의 파일 › 내보내기 › PDF로 먼저 저장한 뒤 올리세요. 글꼴·도형·차트가 그대로 보존됩니다.</span></div>
-          <div><span class="k">PPT 사용 시</span><b>반드시 PDF로 저장</b><span>PPTX를 바로 올리면 글꼴이 깨질 수 있어 받지 않습니다. 파일 › 내보내기 › PDF 만들기 를 쓰세요.</span></div>
-          <div><span class="k">용량</span><b>LMS 업로드 제한 확인</b><span>웹 저장으로 링크를 만들면 용량 제한을 신경 쓰지 않아도 됩니다. 파일로 보내야 한다면 고급 설정에서 화질을 낮추세요.</span></div>
-          <div><span class="k">검수</span><b>오프라인에서 한 번 열어보기</b><span>저장한 파일을 인터넷을 끈 PC에서 더블클릭해 이미지·목차·넘김이 정상인지 확인하세요.</span></div>
+          <div><span class="k">1</span><b>교안은 PDF로 올립니다</b><span>파워포인트에서 <b>파일 › 내보내기 › PDF 만들기</b>로 저장한 뒤 그 PDF를 올리세요. 글꼴·도형·차트가 원본 그대로 보존됩니다.</span></div>
+          <div><span class="k">2</span><b>저장 후 1~2분 기다립니다</b><span><b>웹에 저장하고 링크 만들기</b>를 누르면 서버 반영에 1~2분 걸립니다. 바로 열면 “페이지를 찾을 수 없음”이 나오니 잠시 뒤 새로고침하세요.</span></div>
+          <div><span class="k">3</span><b>주소를 열어 확인하고 전달합니다</b><span>만들어진 주소를 직접 열어 표지·목차·페이지 넘김이 정상인지 보고 나서 보내세요.</span></div>
         </div>
       </section>
     </div>
   </div>
-  <p class="foot"><a id="manLink" href="manual.html" target="_blank" rel="noopener" hidden style="color:var(--accent);font-weight:600;text-decoration:none">사용설명서 열기</a><span id="manSep" hidden> · </span>결과 HTML은 외부 서버·라이브러리 없이 단독 실행됩니다 · 크롬·엣지·사파리·모바일 지원 · 플립북 조작: ←/→ 넘김 · 모서리 끌기 · +/−/0 확대·원래 크기 · Ctrl+휠·두 손가락 확대 · 확대 중 끌어서 이동</p>
+  <p class="foot">결과 HTML은 외부 서버·라이브러리 없이 단독 실행됩니다 · 크롬·엣지·사파리·모바일 지원 · 플립북 조작: ←/→ 넘김 · 모서리 끌기 · +/−/0 확대·원래 크기 · Ctrl+휠·두 손가락 확대 · 확대 중 끌어서 이동</p>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
