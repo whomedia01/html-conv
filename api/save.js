@@ -19,19 +19,37 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: '허용되지 않은 저장 경로입니다. 교안은 ' + c.prefix + ' 아래 .html 로만 저장됩니다.' });
   }
 
-  /* 1) 브라우저가 올려 둔 임시 파일 가져오기 (Vercel Blob 만 허용) */
-  let url;
-  try { url = new URL(String(body.blobUrl || '')); } catch (e) { url = null; }
-  if (!url || url.protocol !== 'https:' || !BLOB_HOST.test(url.hostname)) {
-    return res.status(400).json({ error: '올바른 임시 파일 주소가 아닙니다.' });
-  }
-  let html;
-  try {
-    const r = await fetch(url.href);
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    html = await r.text();
-  } catch (e) {
-    return res.status(400).json({ error: '올려 둔 파일을 읽지 못했습니다. 다시 시도해 주세요.' });
+  /* 1) 브라우저가 올려 둔 교안 가져오기
+        parts: 저장소 임시 조각(sha 목록) — 기본 방식
+        blobUrl: Vercel Blob 임시 파일 — 이전 방식(호환용) */
+  let html, url = null;
+  if (Array.isArray(body.parts) && body.parts.length) {
+    const parts = body.parts.map(String);
+    if (parts.length > 20 || parts.some(x => !/^[0-9a-f]{40}$/.test(x))) {
+      return res.status(400).json({ error: '조각 목록이 올바르지 않습니다.' });
+    }
+    try {
+      const bufs = [];
+      for (const sha of parts) {
+        const b = await gh('/git/blobs/' + sha);
+        bufs.push(Buffer.from(String(b.content || '').replace(/\s+/g, ''), 'base64'));
+      }
+      html = Buffer.concat(bufs).toString('utf8');
+    } catch (e) {
+      return res.status(400).json({ error: '올려 둔 조각을 읽지 못했습니다. 다시 시도해 주세요.' });
+    }
+  } else {
+    try { url = new URL(String(body.blobUrl || '')); } catch (e) { url = null; }
+    if (!url || url.protocol !== 'https:' || !BLOB_HOST.test(url.hostname)) {
+      return res.status(400).json({ error: '올바른 임시 파일 주소가 아닙니다.' });
+    }
+    try {
+      const r = await fetch(url.href);
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      html = await r.text();
+    } catch (e) {
+      return res.status(400).json({ error: '올려 둔 파일을 읽지 못했습니다. 다시 시도해 주세요.' });
+    }
   }
 
   const size = Buffer.byteLength(html, 'utf8');
@@ -79,8 +97,8 @@ export default async function handler(req, res) {
     await putFile(idxPath, JSON.stringify(list.slice(0, 500), null, 1), sha, 'chore: update ebook index');
   } catch (e) { /* 무시 */ }
 
-  /* 5) 임시 파일 정리 */
-  try {
+  /* 5) 임시 파일 정리 (Blob 방식일 때만) */
+  if (url) try {
     const { del } = await import('@vercel/blob');
     await del(url.href);
   } catch (e) { /* 무시 */ }
