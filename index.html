@@ -2633,14 +2633,19 @@ function ghProg(txt, pct){
   $('#ghProgT').textContent = txt;
   $('#ghBar2').style.width = (pct == null ? 100 : pct) + '%';
 }
+/* 바이트 → base64 (큰 파일도 멈춤 없이) */
+const toB64 = u8 => new Promise((ok, no) => {
+  const fr = new FileReader();
+  fr.onload = () => ok(String(fr.result).slice(String(fr.result).indexOf(',') + 1));
+  fr.onerror = () => no(new Error('파일을 읽지 못했습니다.'));
+  fr.readAsDataURL(new Blob([u8]));
+});
 const rndName = () => 'k' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
 
 async function ghSave(it){
   const P = pathOpts(), pw = pwNow();
   if(!pw){ ghState('비밀번호를 넣어 주세요.', 'bad', true); return; }
   if(!P.path){ toast('주소 경로를 적어 주세요.'); return; }
-  if(!window.VBlob || !VBlob.upload){ toast('이 화면에서는 웹 저장을 쓸 수 없습니다. 후미디어 변환기 주소에서 사용해 주세요.'); return; }
-
   const html = it.html, size = byteLen(html), path = deployPath(P, 0), url = shortURL(P, 0);
   const btn = $('#save');
 
@@ -2659,20 +2664,23 @@ async function ghSave(it){
     if(exist && !confirm('같은 경로에 이미 파일이 있습니다.\n\n' + path + '\n\n덮어쓸까요?')) throw new Error('__cancel');
     if(!confirm('아래 내용으로 저장합니다.\n\n경로   ' + path + '\n용량   ' + fmtSize(size) + '\n주소   ' + url + '\n\n계속할까요?')) throw new Error('__cancel');
 
-    /* 2) 임시 자리에 올리기 (서버가 가져갈 때까지만 보관) */
-    ghProg('교안을 올리는 중… (' + fmtSize(size) + ')', 25);
-    const up = await VBlob.upload('staging/' + rndName() + '.txt', new Blob([html], {type:'text/plain'}), {
-      access: 'public',
-      handleUploadUrl: (API || API_CANDS[0]) + 'upload',
-      contentType: 'text/plain',
-      clientPayload: JSON.stringify({pw}),
-      multipart: size > 8 * 1048576,
-      onUploadProgress: ev => ghProg('교안을 올리는 중… (' + fmtSize(size) + ')', 25 + Math.round((ev.percentage || 0) * 0.6))
-    });
+    /* 2) 교안을 조각으로 나눠 올리기 (조각당 2.5MB) */
+    const bytes = new TextEncoder().encode(html), PART = 2.5 * 1048576, parts = [];
+    const n = Math.max(1, Math.ceil(bytes.length / PART));
+    for(let i = 0; i < n; i++){
+      ghProg('교안을 올리는 중… (' + fmtSize(size) + ' · ' + (i + 1) + '/' + n + ')', 25 + Math.round(i / n * 60));
+      const b64 = await toB64(bytes.subarray(i * PART, Math.min(bytes.length, (i + 1) * PART)));
+      let r, k = 0;
+      for(;;){
+        try{ r = await call('part', {pw, b64}); break; }
+        catch(err){ if(++k >= 3 || err.status === 401 || err.status === 429) throw err; await new Promise(z => setTimeout(z, 800 * k)); }
+      }
+      parts.push(r.sha);
+    }
 
-    /* 3) 서버가 검사하고 저장소에 커밋 */
+    /* 3) 서버가 조각을 합쳐 검사하고 저장소에 커밋 */
     ghProg('저장하는 중…', 92);
-    await call('save', {pw, path, blobUrl: up.url, title: it.title || '', overwrite: true});
+    await call('save', {pw, path, parts, title: it.title || '', overwrite: true});
 
     $('#ghOut').value = url;
     $('#ghOpen').href = url;
